@@ -1,0 +1,33 @@
+---
+title: Document Name
+name: World
+form-desc: Lorem ipsum dolor sit amet, consectetur.
+---
+
+<h1>{{home.greeting}}, {{name}}!</h1>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Veritatis numquam eaque ea enim tempore, quaerat, reprehenderit, ut eos incidunt impedit maiores quibusdam porro? Saepe, debitis tenetur voluptates necessitatibus, ipsa nesciunt.</p>
+
+{{> button}}
+
+{{> form form-desc="A cool form."}}
+
+{{#each materials}}
+
+	<h1>{{this.name}}</h1>
+
+	{{#each this.items}}
+
+		<h2>{{this.name}}</h2>
+
+		{{#if this.notes}}<div class="notes">
+			{{{this.notes}}}
+		</div>{{/if}}
+
+		<div class="item">
+			{{partial @key @root}}
+		</div>
+
+	{{/each}}
+
+{{/each}}
