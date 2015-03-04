@@ -9,9 +9,10 @@ describe('fabricator-assemble', function () {
 	// fabricator-assemble task options
 	var options = {
 		layout: 'default',
-		layouts: './test/fixtures/views/layouts/**/*',
+		layouts: './test/fixtures/views/layouts/*',
+		layoutIncludes: './test/fixtures/views/layouts/includes/*',
 		materials: './test/fixtures/materials/**/*',
-		views: ['./test/fixtures/views/**/*', '!./test/fixtures/views/{layouts,includes}/*'],
+		views: ['./test/fixtures/views/**/*', '!./test/fixtures/views/layouts/**/*'],
 		data: './test/fixtures/data/**/*.{yml,json}',
 		docs: './test/fixtures/docs/**/*',
 		dest: './test/output'
@@ -27,7 +28,7 @@ describe('fabricator-assemble', function () {
 
 		assemble(options).done(function (data) {
 			var output = minify(fs.readFileSync('./test/output/index.html', 'utf-8'), { collapseWhitespace: true });
-			var expected = minify(fs.readFileSync('./test/fixtures/expected/index.html', 'utf-8'), { collapseWhitespace: true });
+			var expected = minify(fs.readFileSync('./test/expected/index.html', 'utf-8'), { collapseWhitespace: true });
 			assert.equal(output, expected);
 			done();
 		});
@@ -39,7 +40,7 @@ describe('fabricator-assemble', function () {
 
 		assemble(options).done(function (data) {
 			var output = minify(fs.readFileSync('./test/output/docs.html', 'utf-8'), { collapseWhitespace: true });
-			var expected = minify(fs.readFileSync('./test/fixtures/expected/docs.html', 'utf-8'), { collapseWhitespace: true });
+			var expected = minify(fs.readFileSync('./test/expected/docs.html', 'utf-8'), { collapseWhitespace: true });
 			assert.equal(output, expected);
 			done();
 		});
@@ -51,7 +52,19 @@ describe('fabricator-assemble', function () {
 
 		assemble(options).done(function (data) {
 			var output = minify(fs.readFileSync('./test/output/pages/home.html', 'utf-8'), { collapseWhitespace: true });
-			var expected = minify(fs.readFileSync('./test/fixtures/expected/home.html', 'utf-8'), { collapseWhitespace: true });
+			var expected = minify(fs.readFileSync('./test/expected/home.html', 'utf-8'), { collapseWhitespace: true });
+			assert.equal(output, expected);
+			done();
+		});
+
+	});
+
+
+	it('should assemble with layout includes', function (done) {
+
+		assemble(options).done(function (data) {
+			var output = minify(fs.readFileSync('./test/output/includes.html', 'utf-8'), { collapseWhitespace: true });
+			var expected = minify(fs.readFileSync('./test/expected/includes.html', 'utf-8'), { collapseWhitespace: true });
 			assert.equal(output, expected);
 			done();
 		});

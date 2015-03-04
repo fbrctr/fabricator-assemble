@@ -20,10 +20,11 @@ var yaml = require('js-yaml');
 var assembly = {
 	defaults: {
 		layout: 'default',
-		layouts: 'src/views/layouts/**/*',
+		layouts: 'src/views/layouts/*',
+		layoutIncludes: 'src/views/layouts/includes/*',
 		materials: 'src/materials/**/*',
-		views: ['src/views/**/*', '!src/views/{layouts,includes}/*'],
-		data: 'src/data/**/*.json',
+		views: ['src/views/**/*', '!src/views/layouts/**/*'],
+		data: 'src/data/**/*.{json,yml}',
 		docs: 'src/docs/**/*.md',
 		dest: 'dist'
 	},
@@ -169,6 +170,21 @@ var getLayouts = function () {
 };
 
 
+var registerLayoutIncludes = function () {
+
+	// get files
+	var files = globby.sync(assembly.options.layoutIncludes, { nodir: true });
+
+	// save content of each file
+	files.forEach(function (file) {
+		var id = getFileName(file);
+		var content = fs.readFileSync(file, 'utf-8');
+		Handlebars.registerPartial(id, content);
+	});
+
+};
+
+
 /**
  * Get data
  */
@@ -197,14 +213,12 @@ var setup = function (options) {
 	assembly.options = _.extend({}, assembly.defaults, options);
 
 	getLayouts();
+	registerLayoutIncludes();
 	getData();
 	parseMaterials();
 	parseDocs();
 
 };
-
-
-
 
 
 /**
