@@ -32,6 +32,7 @@ var assembly = {
 	layouts: {},
 	data: {},
 	materials: {},
+	userViews: {},
 	docs: {}
 };
 
@@ -52,7 +53,7 @@ var getFileName = function (filePath) {
  * @return {Object}
  */
 var buildContext = function (matterData) {
-	return _.extend({}, matterData, assembly.data, { materials: assembly.materials }, { docs: assembly.docs });
+	return _.extend({}, matterData, assembly.data, { materials: assembly.materials }, { userViews: assembly.userViews }, { docs: assembly.docs });
 };
 
 
@@ -72,9 +73,11 @@ var wrapPage = function (page, layout) {
  */
 var parseMaterials = function () {
 
+	// reset object
+	assembly.materials = {};
+
 	// get files
 	var files = globby.sync(assembly.options.materials, { nodir: true });
-
 
 	// iterate over each file (material)
 	files.forEach(function (file) {
@@ -86,11 +89,10 @@ var parseMaterials = function () {
 
 
 		// create collection (e.g. "components", "structures") if it doesn't already exist
-		if (!assembly.materials[collection]) {
-			assembly.materials[collection] = {};
-			assembly.materials[collection].name = changeCase.titleCase(collection);
-			assembly.materials[collection].items = {};
-		}
+		assembly.materials[collection] = assembly.materials[collection] || {
+			name: changeCase.titleCase(collection),
+			items: {}
+		};
 
 
 		// create meta data object for the material
@@ -120,7 +122,7 @@ var parseMaterials = function () {
 
 		var output = fn(buildContext(context)).replace(/^\s+/, '');
 
-		return new Handlebars.SafeString(output);
+		return output;
 
 	});
 
@@ -203,6 +205,41 @@ var getData = function () {
 };
 
 
+var parseViews = function () {
+
+
+	assembly.userViews = {};
+
+	// get files
+	var files = globby.sync(assembly.options.views, { nodir: true });
+
+	files.forEach(function (file) {
+
+		var id = getFileName(file);
+
+		var dirname = path.dirname(file).split(path.sep).pop(),
+			collection = (dirname !== 'views') ? dirname : '';
+
+		if (collection) {
+
+			if (!assembly.userViews[collection]) {
+				assembly.userViews[collection] = {
+					name: changeCase.titleCase(collection),
+					items: {}
+				};
+			}
+
+			assembly.userViews[collection].items[id] = {
+				name: changeCase.titleCase(id)
+			}
+
+		}
+
+	});
+
+};
+
+
 /**
  * Setup the assembly
  * @param  {Objet} options  User options
@@ -216,6 +253,10 @@ var setup = function (options) {
 	registerLayoutIncludes();
 	getData();
 	parseMaterials();
+
+	// parse views directory and build meta data, then assemble
+	parseViews();
+
 	parseDocs();
 
 };
@@ -235,6 +276,12 @@ var assemble = function () {
 	// iterate over each view
 	files.forEach(function (file) {
 
+		var id = getFileName(file);
+
+		var dirname = path.dirname(file).split(path.sep).pop(),
+			collection = (dirname !== 'views') ? dirname : '',
+			filePath = path.join(assembly.options.dest, collection, path.basename(file));
+
 		// get page gray matter and content
 		var pageMatter = matter(fs.readFileSync(file, 'utf-8')),
 			pageContent = pageMatter.content;
@@ -243,11 +290,6 @@ var assemble = function () {
 		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || assembly.options.layout]),
 			context = buildContext(pageMatter.data),
 			template = Handlebars.compile(source);
-
-		// get values for new file path
-		var dirname = path.dirname(file).split(path.sep).pop(),
-			collection = (dirname !== 'views') ? dirname : '',
-			filePath = path.join(assembly.options.dest, collection, path.basename(file));
 
 		// write file
 		mkdirp.sync(path.dirname(filePath));
