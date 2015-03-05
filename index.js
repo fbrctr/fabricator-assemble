@@ -14,25 +14,99 @@ var yaml = require('js-yaml');
 
 
 /**
+ * Default options
+ * @type {Object}
+ */
+var defaults = {
+	/**
+	 * ID (filename) of default layout
+	 * @type {String}
+	 */
+	layout: 'default',
+
+	/**
+	 * Layout templates
+	 * @type {(String|Array)}
+	 */
+	layouts: 'src/views/layouts/*',
+
+	/**
+	 * Layout includes (partials)
+	 * @type {String}
+	 */
+	layoutIncludes: 'src/views/layouts/includes/*',
+
+	/**
+	 * Pages to be inserted into a layout
+	 * @type {(String|Array)}
+	 */
+	views: ['src/views/**/*', '!src/views/+(layouts)/**'],
+
+	/**
+	 * Materials - snippets turned into partials
+	 * @type {(String|Array)}
+	 */
+	materials: 'src/materials/**/*',
+
+	/**
+	 * JSON or YAML data models that are piped into views
+	 * @type {(String|Array)}
+	 */
+	data: 'src/data/**/*.{json,yml}',
+
+	/**
+	 * Markdown files containing toolkit-wide documentation
+	 * @type {(String|Array)}
+	 */
+	docs: 'src/docs/**/*.md',
+
+	/**
+	 * Location to write files
+	 * @type {String}
+	 */
+	dest: 'dist'
+};
+
+/**
+ * Merged defaults and user options
+ * @type {Object}
+ */
+var options = {};
+
+
+/**
  * Assembly data storage
  * @type {Object}
  */
 var assembly = {
-	defaults: {
-		layout: 'default',
-		layouts: 'src/views/layouts/*',
-		layoutIncludes: 'src/views/layouts/includes/*',
-		materials: 'src/materials/**/*',
-		views: ['src/views/**/*', '!src/views/layouts/**/*'],
-		data: 'src/data/**/*.{json,yml}',
-		docs: 'src/docs/**/*.md',
-		dest: 'dist'
-	},
-	options: {},
+	/**
+	 * Contents of each layout file
+	 * @type {Object}
+	 */
 	layouts: {},
+
+	/**
+	 * Parsed JSON data from each data file
+	 * @type {Object}
+	 */
 	data: {},
+
+	/**
+	 * Meta data for materials, grouped by "collection" (sub-directory); contains name and sub-items
+	 * @type {Object}
+	 */
 	materials: {},
-	userViews: {},
+
+	/**
+	 * Meta data for user-created views (views in views/{subdir})
+	 * @type {Object}
+	 */
+	views: {},
+
+	/**
+	 * Meta data (name, sub-items) for doc file
+	 * @type {Object}
+	 */
 	docs: {}
 };
 
@@ -48,20 +122,20 @@ var getFileName = function (filePath) {
 
 
 /**
- * Build the template context by merging page gray-matter data with assembly data
- * @param  {Object} matterData
+ * Build the template context by merging context-specific data with assembly data
+ * @param  {Object} data
  * @return {Object}
  */
-var buildContext = function (matterData) {
-	return _.extend({}, matterData, assembly.data, { materials: assembly.materials }, { userViews: assembly.userViews }, { docs: assembly.docs });
+var buildContext = function (data) {
+	return _.extend({}, data, assembly.data, { materials: assembly.materials }, { userViews: assembly.userViews }, { docs: assembly.docs });
 };
 
 
 /**
- * Insert the page into the layout
- * @param  {String} page   [description]
- * @param  {String} layout [description]
- * @return {String}        [description]
+ * Insert the page into a layout
+ * @param  {String} page
+ * @param  {String} layout
+ * @return {String}
  */
 var wrapPage = function (page, layout) {
 	return layout.replace(/\{\%\s?body\s?\%\}/, page);
@@ -77,7 +151,7 @@ var parseMaterials = function () {
 	assembly.materials = {};
 
 	// get files
-	var files = globby.sync(assembly.options.materials, { nodir: true });
+	var files = globby.sync(options.materials, { nodir: true });
 
 	// iterate over each file (material)
 	files.forEach(function (file) {
@@ -87,31 +161,29 @@ var parseMaterials = function () {
 		var fileMatter = matter.read(file);
 		var collection = path.dirname(file).split(path.sep).pop();
 
-
 		// create collection (e.g. "components", "structures") if it doesn't already exist
 		assembly.materials[collection] = assembly.materials[collection] || {
 			name: changeCase.titleCase(collection),
 			items: {}
 		};
 
-
-		// create meta data object for the material
+		// capture meta data for the material
 		assembly.materials[collection].items[id] = {
 			name: changeCase.titleCase(id),
 			notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
 		};
-
 
 		// register the partial
 		Handlebars.registerPartial(id, fileMatter.content);
 
 	});
 
-	// register 'partial' helper used for more dynamic partial includes
-	Handlebars.registerHelper('partial', function (name, context) {
 
-		var template = Handlebars.partials[name];
-		var fn;
+	// register the 'material' helper used for more dynamic partial includes
+	Handlebars.registerHelper('material', function (name, context) {
+
+		var template = Handlebars.partials[name],
+			fn;
 
 		// check to see if template is already compiled
 		if (!_.isFunction(template)) {
@@ -120,9 +192,7 @@ var parseMaterials = function () {
 			fn = template;
 		}
 
-		var output = fn(buildContext(context)).replace(/^\s+/, '');
-
-		return output;
+		return fn(buildContext(context)).replace(/^\s+/, '');
 
 	});
 
@@ -131,12 +201,11 @@ var parseMaterials = function () {
 
 /**
  * Parse markdown files as "docs"
- * @return {[type]} [description]
  */
 var parseDocs = function () {
 
 	// get files
-	var files = globby.sync(assembly.options.docs, { nodir: true });
+	var files = globby.sync(options.docs, { nodir: true });
 
 	// iterate over each file (material)
 	files.forEach(function (file) {
@@ -155,12 +224,12 @@ var parseDocs = function () {
 
 
 /**
- * Get layout files
+ * Parse layout files
  */
-var getLayouts = function () {
+var parseLayouts = function () {
 
 	// get files
-	var files = globby.sync(assembly.options.layouts, { nodir: true });
+	var files = globby.sync(options.layouts, { nodir: true });
 
 	// save content of each file
 	files.forEach(function (file) {
@@ -172,10 +241,13 @@ var getLayouts = function () {
 };
 
 
-var registerLayoutIncludes = function () {
+/**
+ * Register layout includes has Handlebars partials
+ */
+var parseLayoutIncludes = function () {
 
 	// get files
-	var files = globby.sync(assembly.options.layoutIncludes, { nodir: true });
+	var files = globby.sync(options.layoutIncludes, { nodir: true });
 
 	// save content of each file
 	files.forEach(function (file) {
@@ -188,12 +260,12 @@ var registerLayoutIncludes = function () {
 
 
 /**
- * Get data
+ * Parse data files and save JSON
  */
-var getData = function () {
+var parseData = function () {
 
 	// get files
-	var files = globby.sync(assembly.options.data, { nodir: true });
+	var files = globby.sync(options.data, { nodir: true });
 
 	// save content of each file
 	files.forEach(function (file) {
@@ -205,13 +277,16 @@ var getData = function () {
 };
 
 
+/**
+ * Get meta data for views
+ */
 var parseViews = function () {
 
-
+	// reset object
 	assembly.userViews = {};
 
 	// get files
-	var files = globby.sync(assembly.options.views, { nodir: true });
+	var files = globby.sync(options.views, { nodir: true });
 
 	files.forEach(function (file) {
 
@@ -244,19 +319,17 @@ var parseViews = function () {
  * Setup the assembly
  * @param  {Objet} options  User options
  */
-var setup = function (options) {
+var setup = function (userOptions) {
 
 	// merge user options with defaults
-	assembly.options = _.extend({}, assembly.defaults, options);
+	options = _.extend({}, defaults, userOptions);
 
-	getLayouts();
-	registerLayoutIncludes();
-	getData();
+	// setup steps
+	parseLayouts();
+	parseLayoutIncludes();
+	parseData();
 	parseMaterials();
-
-	// parse views directory and build meta data, then assemble
 	parseViews();
-
 	parseDocs();
 
 };
@@ -268,10 +341,10 @@ var setup = function (options) {
 var assemble = function () {
 
 	// get files
-	var files = globby.sync(assembly.options.views, { nodir: true });
+	var files = globby.sync(options.views, { nodir: true });
 
 	// create output directory if it doesn't already exist
-	mkdirp.sync(assembly.options.dest);
+	mkdirp.sync(options.dest);
 
 	// iterate over each view
 	files.forEach(function (file) {
@@ -280,14 +353,14 @@ var assemble = function () {
 
 		var dirname = path.dirname(file).split(path.sep).pop(),
 			collection = (dirname !== 'views') ? dirname : '',
-			filePath = path.join(assembly.options.dest, collection, path.basename(file));
+			filePath = path.join(options.dest, collection, path.basename(file));
 
 		// get page gray matter and content
 		var pageMatter = matter(fs.readFileSync(file, 'utf-8')),
 			pageContent = pageMatter.content;
 
 		// template using Handlebars
-		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || assembly.options.layout]),
+		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
 			context = buildContext(pageMatter.data),
 			template = Handlebars.compile(source);
 
@@ -299,12 +372,12 @@ var assemble = function () {
 
 };
 
+
 /**
  * Module exports
- * @param  {Object} options User options
- * @return {Object}         Stream
+ * @return {Object} Promise
  */
-module.exports = function (options, cb) {
+module.exports = function (options) {
 
 	var deferred = Q.defer();
 
