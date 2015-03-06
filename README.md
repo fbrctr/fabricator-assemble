@@ -1,5 +1,7 @@
 # Fabricator Assemble
 
+[![Build Status](https://travis-ci.org/fbrctr/fabricator-assemble.svg?branch=master)](https://travis-ci.org/fbrctr/fabricator-assemble)
+
 > The assembly engine behind Fabricator
 
 Turn this:
