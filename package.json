@@ -14,7 +14,7 @@
   ],
   "author": "Luke Askew",
   "license": "MIT",
-  "repository": "lukeaskew/fabricator-assemble",
+  "repository": "fbrctr/fabricator-assemble",
   "dependencies": {
     "change-case": "^2.2.0",
     "cheerio": "^0.18.0",
