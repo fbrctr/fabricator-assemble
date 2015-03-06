@@ -2,7 +2,6 @@
 var _ = require('lodash');
 var beautifyHtml = require('js-beautify').html;
 var changeCase = require('change-case');
-var cheerio = require('cheerio');
 var fs = require('fs');
 var globby = require('globby');
 var Handlebars = require('handlebars');
@@ -10,7 +9,7 @@ var matter = require('gray-matter');
 var md = require('markdown-it')({ linkify: true });
 var mkdirp = require('mkdirp');
 var path = require('path');
-var Q = require('Q');
+var Q = require('q');
 var yaml = require('js-yaml');
 
 

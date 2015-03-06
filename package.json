@@ -4,7 +4,8 @@
   "description": "The assembly engine behind Fabricator",
   "main": "index.js",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=0.10.0",
+    "npm": "^2.0.0"
   },
   "scripts": {
     "test": "mocha"
@@ -17,19 +18,16 @@
   "repository": "fbrctr/fabricator-assemble",
   "dependencies": {
     "change-case": "^2.2.0",
-    "cheerio": "^0.18.0",
-    "globby": "^1.1.0",
-    "gray-matter": "^1.1.2",
-    "gulp-util": "^3.0.4",
+    "globby": "^1.2.0",
+    "gray-matter": "^1.2.6",
     "handlebars": "^2.0.0",
     "html-minifier": "^0.6.9",
     "js-beautify": "^1.5.4",
     "js-yaml": "^3.2.7",
     "lodash": "^2.4.1",
-    "markdown-it": "^3.0.7",
+    "markdown-it": "^3.1.0",
     "mkdirp": "^0.5.0",
-    "q": "^1.2.0",
-    "through2": "^0.6.3"
+    "q": "^1.2.0"
   },
   "devDependencies": {
     "del": "^1.1.1",
