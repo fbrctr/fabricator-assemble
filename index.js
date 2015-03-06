@@ -1,5 +1,6 @@
 // modules
 var _ = require('lodash');
+var beautifyHtml = require('js-beautify').html;
 var changeCase = require('change-case');
 var cheerio = require('cheerio');
 var fs = require('fs');
@@ -67,6 +68,7 @@ var defaults = {
 	dest: 'dist'
 };
 
+
 /**
  * Merged defaults and user options
  * @type {Object}
@@ -127,7 +129,7 @@ var getFileName = function (filePath) {
  * @return {Object}
  */
 var buildContext = function (data) {
-	return _.extend({}, data, assembly.data, { materials: assembly.materials }, { userViews: assembly.userViews }, { docs: assembly.docs });
+	return _.extend({}, data, assembly.data, { materials: assembly.materials }, { views: assembly.views }, { docs: assembly.docs });
 };
 
 
@@ -173,8 +175,8 @@ var parseMaterials = function () {
 			notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
 		};
 
-		// register the partial
-		Handlebars.registerPartial(id, fileMatter.content);
+		// register the partial, trim whitespace
+		Handlebars.registerPartial(id, fileMatter.content.replace(/^(\s*(\r?\n|\r))+|(\s*(\r?\n|\r))+$/g, ''));
 
 	});
 
@@ -192,7 +194,11 @@ var parseMaterials = function () {
 			fn = template;
 		}
 
-		return fn(buildContext(context)).replace(/^\s+/, '');
+		return beautifyHtml(fn(buildContext(context)).replace(/^\s+/, ''), {
+			indent_size: 1,
+			indent_char: '    ',
+			indent_with_tabs: true
+		});
 
 	});
 
@@ -283,7 +289,7 @@ var parseData = function () {
 var parseViews = function () {
 
 	// reset object
-	assembly.userViews = {};
+	assembly.views = {};
 
 	// get files
 	var files = globby.sync(options.views, { nodir: true });
@@ -297,14 +303,14 @@ var parseViews = function () {
 
 		if (collection) {
 
-			if (!assembly.userViews[collection]) {
-				assembly.userViews[collection] = {
+			if (!assembly.views[collection]) {
+				assembly.views[collection] = {
 					name: changeCase.titleCase(collection),
 					items: {}
 				};
 			}
 
-			assembly.userViews[collection].items[id] = {
+			assembly.views[collection].items[id] = {
 				name: changeCase.titleCase(id)
 			}
 

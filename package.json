@@ -23,6 +23,7 @@
     "gulp-util": "^3.0.4",
     "handlebars": "^2.0.0",
     "html-minifier": "^0.6.9",
+    "js-beautify": "^1.5.4",
     "js-yaml": "^3.2.7",
     "lodash": "^2.4.1",
     "markdown-it": "^3.0.7",
