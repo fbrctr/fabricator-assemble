@@ -298,18 +298,20 @@ var parseViews = function () {
 
 		var id = getFileName(file);
 
+		// determine if view is part of a collection (subdir)
 		var dirname = path.dirname(file).split(path.sep).pop(),
 			collection = (dirname !== 'views') ? dirname : '';
 
+		// if this file is part of a collection
 		if (collection) {
 
-			if (!assembly.views[collection]) {
-				assembly.views[collection] = {
-					name: changeCase.titleCase(collection),
-					items: {}
-				};
-			}
+			// create collection if it doesn't exist
+			assembly.views[collection] = assembly.views[collection] || {
+				name: changeCase.titleCase(collection),
+				items: {}
+			};
 
+			// store view data
 			assembly.views[collection].items[id] = {
 				name: changeCase.titleCase(id)
 			}
@@ -357,6 +359,7 @@ var assemble = function () {
 
 		var id = getFileName(file);
 
+		// build filePath
 		var dirname = path.dirname(file).split(path.sep).pop(),
 			collection = (dirname !== 'views') ? dirname : '',
 			filePath = path.join(options.dest, collection, path.basename(file));
