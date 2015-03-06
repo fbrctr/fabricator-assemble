@@ -1,6 +1,6 @@
-# gulp-fabricate
+# Fabricator Assemble
 
-> A gulp plugin for fabricating pages using Handlebars, JSON, and front matter.
+> The assembly engine behind Fabricator
 
 Turn this:
 
@@ -35,26 +35,18 @@ into this:
 
 ## Usage
 
-Install:
-
-```
-$ npm install --save-dev gulp-fabricate
-```
-
-Example:
+The task returns a promise, so it can be used in an async task runner, like Gulp:
 
 ```js
-var fabricate = require('gulp-fabricate');
+var assemble = require('fabricator-assemble');
 var gulp = require('gulp');
 
-gulp.task('templates', function () {
-	return gulp.src('src/views/pages/**/*')
-		.pipe(fabricate())
-		.pipe(gulp.dest('dist/'));
+gulp.task('assemble', function () {
+	return assemble();
 });
 ```
 
-Assuming this directory structure:
+The task accepts options, but assumes this directory structure:
 
 ```
 └── src
@@ -78,10 +70,13 @@ Default options:
 ```
 {
 	layout: 'default',
-	layouts: 'src/views/layouts/**/*',
+	layouts: 'src/views/layouts/*',
+	layoutIncludes: 'src/views/layouts/includes/*',
+	views: ['src/views/**/*', '!src/views/+(layouts)/**'],
 	materials: 'src/materials/**/*',
 	data: 'src/data/**/*.{json,yml}',
-	docs: 'src/docs/**/*.md'
+	docs: 'src/docs/**/*.md',
+	dest: 'dist'
 }
 ```
 
@@ -95,21 +90,35 @@ Name of the default layout template.
 ### options.layouts
 
 Type: `String` or `Array`  
-Default: `src/views/layouts/**/*`
+Default: `src/views/layouts/*`
 
 Files to use as layout templates.
+
+### options.layoutIncludes
+
+Type: `String` or `Array`  
+Default: `src/views/layouts/includes/*`
+
+Files to use as layout includes.
+
+### options.views
+
+Type: `String` or `Array`  
+Default: `['src/views/**/*', '!src/views/+(layouts)/**']`
+
+Pages to pass through the assembler to be templated. Fabricator pages are stored at the root level `views` and user-defined views can be stored in subdirectories.
 
 ### options.materials
 
 Type: `String` or `Array`  
 Default: `src/materials/**/*`
 
-Files to use a partials/helpers.
+Files to use a partials/helpers. These are the materials that make up your toolkit. by default, Fabricator comes with "components" and "structures", but you can define your own taxonomy.
 
 ### options.data
 
 Type: `String` or `Array`  
-Default: `src/data/**/*.json`
+Default: `src/data/**/*.{json,yml}`
 
 JSON or YAML files to use as data for views.
 
@@ -125,7 +134,7 @@ Markdown files containing toolkit-wide documentation
 ### Definitions
 
 - **Layouts**: wrapper templates
-- **Pages**: individual pages
+- **Views**: individual pages
 - **Materials**: partial views; registered as "partials" and "helpers" in Handlebars
 - **Data**: Data piped in as template context
 - **Docs**: Markdown files containing documentation.
@@ -167,11 +176,11 @@ This would use `custom-layout.html`.
 
 When no `layout` property is defined, the page uses the `default` layout.
 
-#### Pages
+#### Views
 
-Pages can be templated using Handlebars.
+Views are unique pages templated using Handlebars. These are both Fabricator pages and user-created pages (i.e. example templates)
 
-Example page:
+View example:
 
 ```html
 ---
@@ -191,11 +200,13 @@ The front matter block at the top provides context to both the layout and the pa
 
 Context is also piped in from data files (see below). In this example, `{{home.greeting}}` refers to the `greeting` property in `home.json`.
 
+Fabricator pages are typically stored at the root level of the `views` directory and user-created views (e.g. "templates", "pages", "interfaces") should be stored in subdirectories.
+
 #### Materials
 
 Materials are partial templates; think of them as the materials used to build pages. 
 
-They are accessible as a "partial":
+They are accessed as a "partial" using the `>` syntax in Handlebars:
 
 ```html
 {{> material-name}}
@@ -242,3 +253,9 @@ The data within each file can be accessed using dot notation:
 {{home.greeting}}
 {{contact.propName}}
 ```
+
+#### Docs
+
+Docs are just a generic way to capture toolkit documenation that's not specific to a material. This could be something like JavaScript architecture, accessibility guidelines, etc.
+
+Docs are written in markdown and are stored in `src/docs` by default.
