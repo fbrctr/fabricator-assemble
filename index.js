@@ -367,6 +367,10 @@ var assemble = function () {
 		var pageMatter = matter(fs.readFileSync(file, 'utf-8')),
 			pageContent = pageMatter.content;
 
+		if (collection) {
+			pageMatter.data.base_url = '../';
+		}
+
 		// template using Handlebars
 		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
 			context = buildContext(pageMatter.data),
