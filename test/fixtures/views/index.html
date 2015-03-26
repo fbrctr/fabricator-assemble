@@ -14,19 +14,31 @@ form-desc: Lorem ipsum dolor sit amet, consectetur.
 
 {{#each materials}}
 
-	<h1>{{this.name}}</h1>
+	<h1>{{name}}</h1>
 
-	{{#each this.items}}
+	{{#each items}}
 
-		<h2>{{this.name}}</h2>
+		<h2>{{name}}</h2>
 
-		{{#if this.notes}}<div class="notes">
-			{{{this.notes}}}
+		{{#if notes}}<div class="notes">
+			{{{notes}}}
 		</div>{{/if}}
 
-		<div class="item">
-			{{{material @key @root}}}
-		</div>
+		{{#if items}}
+			{{#each items}}
+				<h3>{{name}}</h3>
+				{{#if notes}}<div class="notes">
+					{{{notes}}}
+				</div>{{/if}}
+				<div class="item">
+					{{{material @key @root}}}
+				</div>
+			{{/each}}
+		{{else}}
+			<div class="item">
+				{{{material @key @root}}}
+			</div>
+		{{/if}}
 
 	{{/each}}
 

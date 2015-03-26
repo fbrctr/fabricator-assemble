@@ -10,6 +10,7 @@ var md = require('markdown-it')({ html: true, linkify: true });
 var mkdirp = require('mkdirp');
 var path = require('path');
 var Q = require('q');
+var sortObj = require('sort-object');
 var yaml = require('js-yaml');
 
 
@@ -151,28 +152,60 @@ var parseMaterials = function () {
 	// reset object
 	assembly.materials = {};
 
-	// get files
-	var files = globby.sync(options.materials, { nodir: true });
+	// get files and dirs
+	var files = globby.sync(options.materials, { nodir: true, nosort: true });
+
+	// get all directories
+	var dirs = files.map(function (file) {
+		return path.dirname(file).split(path.sep).pop();
+	});
+
+
+	// stub out an object for each collection and subCollection
+	files.forEach(function (file) {
+
+		var parent = path.dirname(file).split(path.sep).slice(-2, -1)[0];
+		var collection = path.dirname(file).split(path.sep).pop();
+		var isSubCollection = (dirs.indexOf(parent) > -1);
+
+		if (!isSubCollection) {
+			assembly.materials[collection] = assembly.materials[collection] || {
+				name: changeCase.titleCase(collection),
+				items: {}
+			};
+		} else {
+			assembly.materials[parent].items[collection] = assembly.materials[parent].items[collection] || {
+				name: changeCase.titleCase(collection),
+				items: {}
+			};
+		}
+
+	});
+
 
 	// iterate over each file (material)
 	files.forEach(function (file) {
 
+
 		// get info
-		var id = getFileName(file);
 		var fileMatter = matter.read(file);
 		var collection = path.dirname(file).split(path.sep).pop();
-
-		// create collection (e.g. "components", "structures") if it doesn't already exist
-		assembly.materials[collection] = assembly.materials[collection] || {
-			name: changeCase.titleCase(collection),
-			items: {}
-		};
+		var parent = path.dirname(file).split(path.sep).slice(-2, -1)[0];
+		var isSubCollection = (dirs.indexOf(parent) > -1);
+		var id = (isSubCollection) ? collection + '.' + getFileName(file) : getFileName(file);
 
 		// capture meta data for the material
-		assembly.materials[collection].items[id] = {
-			name: changeCase.titleCase(id),
-			notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
-		};
+		if (!isSubCollection) {
+			assembly.materials[collection].items[id] = {
+				name: changeCase.titleCase(id),
+				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
+			};
+		} else {
+			assembly.materials[parent].items[collection].items[id] = {
+				name: changeCase.titleCase(id.split('.')[1]),
+				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
+			};
+		}
 
 		// register the partial, trim whitespace
 		Handlebars.registerPartial(id, fileMatter.content.replace(/^(\s*(\r?\n|\r))+|(\s*(\r?\n|\r))+$/g, ''));
@@ -180,26 +213,12 @@ var parseMaterials = function () {
 	});
 
 
-	// register the 'material' helper used for more dynamic partial includes
-	Handlebars.registerHelper('material', function (name, context) {
+	// sort materials object alphabetically
+	assembly.materials = sortObj(assembly.materials);
 
-		var template = Handlebars.partials[name],
-			fn;
-
-		// check to see if template is already compiled
-		if (!_.isFunction(template)) {
-			fn = Handlebars.compile(template);
-		} else {
-			fn = template;
-		}
-
-		return beautifyHtml(fn(buildContext(context)).replace(/^\s+/, ''), {
-			indent_size: 1,
-			indent_char: '    ',
-			indent_with_tabs: true
-		});
-
-	});
+	for (var collection in assembly.materials) {
+		assembly.materials[collection].items = sortObj(assembly.materials[collection].items);
+	}
 
 };
 
@@ -313,9 +332,45 @@ var parseViews = function () {
 			// store view data
 			assembly.views[collection].items[id] = {
 				name: changeCase.titleCase(id)
-			}
+			};
 
 		}
+
+	});
+
+};
+
+
+/**
+ * Register new Handlebars helpers
+ * @return {[type]} [description]
+ */
+var registerHelpers = function () {
+
+	/**
+	 * `material`
+	 * @description Like a normal partial include (`{{> partialName }}`),
+	 * but with some additional templating logic to help with nested block iterations
+	 * @example
+	 * {{material name context}}
+	 */
+	Handlebars.registerHelper('material', function (name, context) {
+
+		var template = Handlebars.partials[name],
+			fn;
+
+		// check to see if template is already compiled
+		if (!_.isFunction(template)) {
+			fn = Handlebars.compile(template);
+		} else {
+			fn = template;
+		}
+
+		return beautifyHtml(fn(buildContext(context)).replace(/^\s+/, ''), {
+			indent_size: 1,
+			indent_char: '    ',
+			indent_with_tabs: true
+		});
 
 	});
 
@@ -332,6 +387,7 @@ var setup = function (userOptions) {
 	options = _.extend({}, defaults, userOptions);
 
 	// setup steps
+	registerHelpers();
 	parseLayouts();
 	parseLayoutIncludes();
 	parseData();
