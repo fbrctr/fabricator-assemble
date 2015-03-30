@@ -228,6 +228,9 @@ var parseMaterials = function () {
  */
 var parseDocs = function () {
 
+	// reset
+	assembly.docs = {};
+
 	// get files
 	var files = globby.sync(options.docs, { nodir: true });
 
@@ -251,6 +254,9 @@ var parseDocs = function () {
  * Parse layout files
  */
 var parseLayouts = function () {
+
+	// reset
+	assembly.layouts = {};
 
 	// get files
 	var files = globby.sync(options.layouts, { nodir: true });
@@ -288,6 +294,9 @@ var parseLayoutIncludes = function () {
  */
 var parseData = function () {
 
+	// reset
+	assembly.data = {};
+
 	// get files
 	var files = globby.sync(options.data, { nodir: true });
 
@@ -306,7 +315,7 @@ var parseData = function () {
  */
 var parseViews = function () {
 
-	// reset object
+	// reset
 	assembly.views = {};
 
 	// get files
@@ -343,7 +352,6 @@ var parseViews = function () {
 
 /**
  * Register new Handlebars helpers
- * @return {[type]} [description]
  */
 var registerHelpers = function () {
 
@@ -399,7 +407,7 @@ var setup = function (userOptions) {
 
 
 /**
- * assemble
+ * Assemble views using materials, data, and docs
  */
 var assemble = function () {
 
