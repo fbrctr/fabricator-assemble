@@ -9,7 +9,6 @@ var matter = require('gray-matter');
 var md = require('markdown-it')({ html: true, linkify: true });
 var mkdirp = require('mkdirp');
 var path = require('path');
-var Q = require('q');
 var sortObj = require('sort-object');
 var yaml = require('js-yaml');
 
@@ -455,17 +454,10 @@ var assemble = function () {
  */
 module.exports = function (options) {
 
-	var deferred = Q.defer();
-
 	// setup assembly
 	setup(options);
 
 	// assemble
 	assemble();
-
-	// resolve deferred
-	deferred.resolve();
-
-	return deferred.promise;
 
 };
