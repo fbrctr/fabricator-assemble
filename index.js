@@ -356,7 +356,7 @@ var registerHelpers = function () {
 
 	// get helper files
 	var resolveHelper = path.join.bind(null, __dirname, 'helpers');
-	var localHelpers = fs.readdirSync('helpers');
+	var localHelpers = fs.readdirSync(resolveHelper());
 	var userHelpers = options.helpers;
 
 	// register local helpers
