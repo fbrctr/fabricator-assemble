@@ -78,6 +78,7 @@ Default options:
 	materials: 'src/materials/**/*',
 	data: 'src/data/**/*.{json,yml}',
 	docs: 'src/docs/**/*.md',
+	helpers: {},
 	dest: 'dist'
 }
 ```
@@ -130,6 +131,29 @@ Type: `String` or `Array`
 Default: `src/docs/**/*.md`
 
 Markdown files containing toolkit-wide documentation
+
+### options.helpers
+
+Type: `Object`
+Default: `{}`
+
+User-defined helpers. E.g.:
+
+```javascript
+helpers: {
+	markdown: require('helper-markdown'),
+	foo: function () {
+		return 'bar';
+	}
+}
+```
+
+### options.dest
+
+Type: `String`
+Default: `dist`
+
+Destination of compiled views (where files are saved to)
 
 ## API
 

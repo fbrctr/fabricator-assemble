@@ -15,7 +15,10 @@ describe('fabricator-assemble', function () {
 		views: ['./test/fixtures/views/**/*', '!./test/fixtures/views/+(layouts)/**'],
 		data: './test/fixtures/data/**/*.{yml,json}',
 		docs: './test/fixtures/docs/**/*',
-		dest: './test/output'
+		dest: './test/output',
+		helpers: {
+			markdown: require('helper-markdown')
+		}
 	};
 
 	beforeEach(function () {
@@ -69,6 +72,19 @@ describe('fabricator-assemble', function () {
 
 		var output = minify(fs.readFileSync('./test/output/includes.html', 'utf-8'), { collapseWhitespace: true });
 		var expected = minify(fs.readFileSync('./test/expected/includes.html', 'utf-8'), { collapseWhitespace: true });
+
+		assert.equal(output, expected);
+		done();
+
+	});
+
+
+	it('should assemble with helpers', function (done) {
+
+		assemble(options);
+
+		var output = minify(fs.readFileSync('./test/output/helpers.html', 'utf-8'), { collapseWhitespace: true });
+		var expected = minify(fs.readFileSync('./test/expected/helpers.html', 'utf-8'), { collapseWhitespace: true });
 
 		assert.equal(output, expected);
 		done();
