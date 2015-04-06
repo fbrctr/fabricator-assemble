@@ -456,7 +456,7 @@ var assemble = function () {
 			pageContent = pageMatter.content;
 
 		if (collection) {
-			pageMatter.data.base_url = '../';
+			pageMatter.data.baseurl = '../';
 		}
 
 		// template using Handlebars
