@@ -1,6 +1,6 @@
 {
   "name": "fabricator-assemble",
-  "version": "0.1.7",
+  "version": "1.0.0",
   "description": "The assembly engine behind Fabricator",
   "main": "index.js",
   "engines": {
