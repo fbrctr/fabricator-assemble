@@ -1,6 +1,6 @@
 # Fabricator Assemble
 
-[![Build Status](https://travis-ci.org/fbrctr/fabricator-assemble.svg?branch=master)](https://travis-ci.org/fbrctr/fabricator-assemble)
+[![Build Status](https://travis-ci.org/fbrctr/fabricator-assemble.svg?branch=master)](https://travis-ci.org/fbrctr/fabricator-assemble) [![npm version](https://badge.fury.io/js/fabricator-assemble.svg)](http://badge.fury.io/js/fabricator-assemble)
 
 > The assembly engine behind Fabricator
 
