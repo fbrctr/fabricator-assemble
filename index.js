@@ -1,5 +1,6 @@
 // modules
 var _ = require('lodash');
+var beautifyHtml = require('js-beautify').html;
 var changeCase = require('change-case');
 var fs = require('fs');
 var globby = require('globby');
@@ -8,7 +9,6 @@ var matter = require('gray-matter');
 var md = require('markdown-it')({ html: true, linkify: true });
 var mkdirp = require('mkdirp');
 var path = require('path');
-var prettyPrint = require('html').prettyPrint;
 var sortObj = require('sort-object');
 var yaml = require('js-yaml');
 
@@ -407,7 +407,7 @@ var registerHelpers = function () {
 			fn = template;
 		}
 
-		return prettyPrint(fn(buildContext(context)).replace(/^\s+/, ''), options.beautifier);
+		return beautifyHtml(fn(buildContext(context)).replace(/^\s+/, ''), options.beautifier);
 
 	});
 
