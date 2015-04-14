@@ -108,6 +108,12 @@ var assembly = {
 	materials: {},
 
 	/**
+	 * Each material's front-matter data
+	 * @type {Object}
+	 */
+	materialData: {},
+
+	/**
 	 * Meta data for user-created views (views in views/{subdir})
 	 * @type {Object}
 	 */
@@ -137,7 +143,7 @@ var getFileName = function (filePath) {
  * @return {Object}
  */
 var buildContext = function (data) {
-	return _.extend({}, data, assembly.data, { materials: assembly.materials }, { views: assembly.views }, { docs: assembly.docs });
+	return _.assign({}, data, assembly.data, assembly.materialData, { materials: assembly.materials }, { views: assembly.views }, { docs: assembly.docs });
 };
 
 
@@ -194,13 +200,19 @@ var parseMaterials = function () {
 	// iterate over each file (material)
 	files.forEach(function (file) {
 
-
 		// get info
 		var fileMatter = matter.read(file);
 		var collection = path.dirname(file).split(path.sep).pop();
 		var parent = path.dirname(file).split(path.sep).slice(-2, -1)[0];
 		var isSubCollection = (dirs.indexOf(parent) > -1);
 		var id = (isSubCollection) ? collection + '.' + getFileName(file) : getFileName(file);
+
+		// get material front-matter, omit `notes`
+		var localData = _.omit(fileMatter.data, 'notes');
+
+		// trim whitespace from material content
+		var content = fileMatter.content.replace(/^(\s*(\r?\n|\r))+|(\s*(\r?\n|\r))+$/g, '');
+
 
 		// capture meta data for the material
 		if (!isSubCollection) {
@@ -215,8 +227,27 @@ var parseMaterials = function () {
 			};
 		}
 
-		// register the partial, trim whitespace
-		Handlebars.registerPartial(id, fileMatter.content.replace(/^(\s*(\r?\n|\r))+|(\s*(\r?\n|\r))+$/g, ''));
+
+		// store material-name-spaced local data in template context
+		assembly.materialData[id.replace(/\./g, '-')] = localData;
+
+
+		// replace local fields on the fly with name-spaced keys
+		// this allows partials to use local front-matter data
+		// only affects the compilation environment
+		if (!_.isEmpty(localData)) {
+			_.forEach(localData, function (val, key) {
+				// {{field}} => {{material-name.field}}
+				var regex = new RegExp('(\\{\\{[#\/]?)(\\s?' + key + '+?\\s?)(\\}\\})', 'g');
+				content = content.replace(regex, function (match, p1, p2, p3) {
+					return p1 + id.replace(/\./g, '-') + '.' + p2.replace(/\s/g, '') + p3;
+				});
+			});
+		}
+
+
+		// register the partial
+		Handlebars.registerPartial(id, content);
 
 	});
 
@@ -421,7 +452,7 @@ var registerHelpers = function () {
 var setup = function (userOptions) {
 
 	// merge user options with defaults
-	options = _.extend({}, defaults, userOptions);
+	options = _.assign({}, defaults, userOptions);
 
 	// setup steps
 	registerHelpers();
