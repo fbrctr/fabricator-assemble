@@ -483,9 +483,9 @@ var assemble = function () {
 		var id = getFileName(file);
 
 		// build filePath
-		var dirname = path.dirname(file).split(path.sep).pop(),
+		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
 			collection = (dirname !== 'views') ? dirname : '',
-			filePath = path.join(options.dest, collection, path.basename(file));
+			filePath = path.normalize(path.join(options.dest, collection, path.basename(file)));
 
 		// get page gray matter and content
 		var pageMatter = matter(fs.readFileSync(file, 'utf-8')),
