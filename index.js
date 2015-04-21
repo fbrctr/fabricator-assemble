@@ -171,15 +171,15 @@ var parseMaterials = function () {
 
 	// get all directories
 	var dirs = files.map(function (file) {
-		return path.dirname(file).split(path.sep).pop();
+		return path.normalize(path.dirname(file)).split(path.sep).pop();
 	});
 
 
 	// stub out an object for each collection and subCollection
 	files.forEach(function (file) {
 
-		var parent = path.dirname(file).split(path.sep).slice(-2, -1)[0];
-		var collection = path.dirname(file).split(path.sep).pop();
+		var parent = path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0];
+		var collection = path.normalize(path.dirname(file)).split(path.sep).pop();
 		var isSubCollection = (dirs.indexOf(parent) > -1);
 
 		if (!isSubCollection) {
@@ -202,8 +202,8 @@ var parseMaterials = function () {
 
 		// get info
 		var fileMatter = matter.read(file);
-		var collection = path.dirname(file).split(path.sep).pop();
-		var parent = path.dirname(file).split(path.sep).slice(-2, -1)[0];
+		var collection = path.normalize(path.dirname(file)).split(path.sep).pop();
+		var parent = path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0];
 		var isSubCollection = (dirs.indexOf(parent) > -1);
 		var id = (isSubCollection) ? collection + '.' + getFileName(file) : getFileName(file);
 
@@ -365,7 +365,7 @@ var parseViews = function () {
 		var id = getFileName(file);
 
 		// determine if view is part of a collection (subdir)
-		var dirname = path.dirname(file).split(path.sep).pop(),
+		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
 			collection = (dirname !== 'views') ? dirname : '';
 
 		// if this file is part of a collection
