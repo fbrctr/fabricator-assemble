@@ -368,6 +368,9 @@ var parseViews = function () {
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
 			collection = (dirname !== 'views') ? dirname : '';
 
+		var fileMatter = matter.read(file),
+			fileData = _.omit(fileMatter.data, 'notes');
+
 		// if this file is part of a collection
 		if (collection) {
 
@@ -379,7 +382,8 @@ var parseViews = function () {
 
 			// store view data
 			assembly.views[collection].items[id] = {
-				name: changeCase.titleCase(id)
+				name: changeCase.titleCase(id),
+				data: fileData
 			};
 
 		}
