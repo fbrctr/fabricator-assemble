@@ -5,6 +5,7 @@ var chalk = require('chalk');
 var fs = require('fs');
 var globby = require('globby');
 var Handlebars = require('handlebars');
+var inflect = require('i')();
 var matter = require('gray-matter');
 var md = require('markdown-it')({ html: true, linkify: true });
 var mkdirp = require('mkdirp');
@@ -49,6 +50,12 @@ var defaults = {
 	materials: 'src/materials/**/*',
 
 	/**
+	 * Keyword used to access materials in views
+	 * @type {String}
+	 */
+	materialKey: 'materials',
+
+	/**
 	 * JSON or YAML data models that are piped into views
 	 * @type {(String|Array)}
 	 */
@@ -65,6 +72,7 @@ var defaults = {
 	 * @type {String}
 	 */
 	dest: 'dist',
+
 	/**
 	 * beautifier options
 	 * @type {Object}
@@ -202,7 +210,13 @@ var handleError = function (e) {
  * @return {Object}
  */
 var buildContext = function (data) {
-	return _.assign({}, data, assembly.data, assembly.materialData, { materials: assembly.materials }, { views: assembly.views }, { docs: assembly.docs });
+
+	// set materialsKey to whatever is defined
+	var materialsObj = {};
+	materialsObj[options.materialKey] = assembly.materials;
+
+	return _.assign({}, data, assembly.data, assembly.materialData, materialsObj, { views: assembly.views }, { docs: assembly.docs });
+
 };
 
 
@@ -496,11 +510,12 @@ var registerHelpers = function () {
 	/**
 	 * `material`
 	 * @description Like a normal partial include (`{{> partialName }}`),
-	 * but with some additional templating logic to help with nested block iterations
+	 * but with some additional templating logic to help with nested block iterations.
+	 * The name of the helper is the singular form of whatever is defined as the `materialKey`
 	 * @example
 	 * {{material name context}}
 	 */
-	Handlebars.registerHelper('material', function (name, context) {
+	Handlebars.registerHelper(inflect.singularize(options.materialKey), function (name, context) {
 
 		var template = Handlebars.partials[name],
 			fn;

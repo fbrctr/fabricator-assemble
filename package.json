@@ -22,6 +22,7 @@
     "gray-matter": "^1.2.6",
     "handlebars": "^2.0.0",
     "html-minifier": "^0.6.9",
+    "i": "^0.3.3",
     "js-beautify": "^1.5.5",
     "js-yaml": "^3.2.7",
     "lodash": "^3.8.0",
