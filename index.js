@@ -1,6 +1,7 @@
 // modules
 var _ = require('lodash');
 var beautifyHtml = require('js-beautify').html;
+var chalk = require('chalk');
 var changeCase = require('change-case');
 var fs = require('fs');
 var globby = require('globby');
@@ -73,7 +74,17 @@ var defaults = {
 		indent_size: 1,
 		indent_char: '	',
 		indent_with_tabs: true
-	}
+	},
+	/**
+	 * Function to call when an error occurs
+	 * @type {Function}
+	 */
+	onError: null,
+	/**
+	 * Whether or not to log errors to console
+	 * @type {Boolean}
+	 */
+	logErrors: false
 };
 
 
@@ -134,6 +145,65 @@ var assembly = {
  */
 var getFileName = function (filePath) {
 	return path.basename(filePath).replace(/\.[^\/.]+$/, '');
+};
+
+
+/**
+ * Attempt to read front matter, handle errors
+ * @param  {String} file Path to file
+ * @return {Object}
+ */
+var getMatter = function (file) {
+	try {
+		return matter.read(file, {
+			parser: require('js-yaml').safeLoad
+		});
+	} catch (e) {
+		handleError({
+			name: e.name,
+			reason: e.reason,
+			message: e.message,
+			file: file
+		});
+	}
+};
+
+
+/**
+ * Handle errors
+ * @param  {Object} e Error object
+ */
+var handleError = function (e) {
+
+	// default to exiting process on error
+	var exit = true;
+
+	// construct error object by combining argument with defaults
+	var error = _.assign({}, {
+		name: 'Error',
+		reason: '',
+		message: 'An error occurred',
+		file: ''
+	}, e);
+
+	// call onError
+	if (_.isFunction(options.onError)) {
+		options.onError(error);
+		exit = false;
+	}
+
+	// log errors
+	if (options.logErrors) {
+		console.error(chalk.bold.red('Error (fabricator-assemble): [' + e.file + '] ' + e.message));
+		exit = false;
+	}
+
+	// break the build if desired
+	if (exit) {
+		console.error(chalk.bold.red('Error (fabricator-assemble): ' + e.message));
+		process.exit(1);
+	}
+
 };
 
 
@@ -201,7 +271,7 @@ var parseMaterials = function () {
 	files.forEach(function (file) {
 
 		// get info
-		var fileMatter = matter.read(file);
+		var fileMatter = getMatter(file);
 		var collection = path.normalize(path.dirname(file)).split(path.sep).pop();
 		var parent = path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0];
 		var isSubCollection = (dirs.indexOf(parent) > -1);
@@ -368,7 +438,7 @@ var parseViews = function () {
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
 			collection = (dirname !== 'views') ? dirname : '';
 
-		var fileMatter = matter.read(file),
+		var fileMatter = getMatter(file),
 			fileData = _.omit(fileMatter.data, 'notes');
 
 		// if this file is part of a collection
@@ -437,7 +507,7 @@ var registerHelpers = function () {
 
 		// check to see if template is already compiled
 		if (!_.isFunction(template)) {
-			fn = Handlebars.compile(template);
+			fn = Handlebars.compile(template, options.handlebars);
 		} else {
 			fn = template;
 		}
@@ -457,6 +527,9 @@ var setup = function (userOptions) {
 
 	// merge user options with defaults
 	options = _.assign({}, defaults, userOptions);
+
+	// set handlebars compile options
+	options.handlebars = (options.logErrors || _.isFunction(options.onError)) ? { strict: true } : {};
 
 	// setup steps
 	registerHelpers();
@@ -492,7 +565,7 @@ var assemble = function () {
 			filePath = path.normalize(path.join(options.dest, collection, path.basename(file)));
 
 		// get page gray matter and content
-		var pageMatter = matter(fs.readFileSync(file, 'utf-8')),
+		var pageMatter = getMatter(file),
 			pageContent = pageMatter.content;
 
 		if (collection) {
@@ -502,7 +575,7 @@ var assemble = function () {
 		// template using Handlebars
 		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
 			context = buildContext(pageMatter.data),
-			template = Handlebars.compile(source);
+			template = Handlebars.compile(source, options.handlebars);
 
 		// write file
 		mkdirp.sync(path.dirname(filePath));
@@ -519,10 +592,14 @@ var assemble = function () {
  */
 module.exports = function (options) {
 
-	// setup assembly
-	setup(options);
+	try {
 
-	// assemble
-	assemble();
+		// setup assembly
+		setup(options);
+
+		// assemble
+		assemble();
+
+	} catch(e) {}
 
 };

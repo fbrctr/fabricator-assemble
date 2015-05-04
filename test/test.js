@@ -18,7 +18,8 @@ describe('fabricator-assemble', function () {
 		dest: './test/output',
 		helpers: {
 			markdown: require('helper-markdown')
-		}
+		},
+		logErrors: true
 	};
 
 	beforeEach(function () {
