@@ -79,6 +79,8 @@ Default options:
 	data: 'src/data/**/*.{json,yml}',
 	docs: 'src/docs/**/*.md',
 	helpers: {},
+	logErrors: false,
+	onError: function(error) {},
 	dest: 'dist'
 }
 ```
@@ -147,6 +149,20 @@ helpers: {
 	}
 }
 ```
+
+### options.logErrors
+
+Type: `Boolean`
+Default: `false`
+
+Whether or not to log errors to console. If set to false, the app will exit on error.
+
+### options.onError
+
+Type: `Function`
+Default: `null`
+
+Error handler function. Receives an `error` object param.
 
 ### options.dest
 
