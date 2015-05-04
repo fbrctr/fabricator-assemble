@@ -76,6 +76,7 @@ Default options:
 	layoutIncludes: 'src/views/layouts/includes/*',
 	views: ['src/views/**/*', '!src/views/+(layouts)/**'],
 	materials: 'src/materials/**/*',
+	materialKey: 'materials',
 	data: 'src/data/**/*.{json,yml}',
 	docs: 'src/docs/**/*.md',
 	helpers: {},
@@ -119,6 +120,15 @@ Type: `String` or `Array`
 Default: `src/materials/**/*`
 
 Files to use a partials/helpers. These are the materials that make up your toolkit. by default, Fabricator comes with "components" and "structures", but you can define your own taxonomy.
+
+### options.materialKey
+
+Type: `String` 
+Default: `materials`
+
+Object keyword for accessing "materials" in a view templating context. Fabricator uses the term "materials" to describe what are really "partials" in Handelbars' terms. This allows you to use a term other than `materials` when accessing partials. 
+
+Note that this will also change the built-in `{{material <foo>}}` helper to use the singular form of whatever is defined. e.g. `materialKey: 'patterns'` -> `{{pattern <foo>}}`
 
 ### options.data
 
