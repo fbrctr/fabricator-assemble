@@ -154,18 +154,9 @@ var getFileName = function (filePath) {
  * @return {Object}
  */
 var getMatter = function (file) {
-	try {
-		return matter.read(file, {
-			parser: require('js-yaml').safeLoad
-		});
-	} catch (e) {
-		handleError({
-			name: e.name,
-			reason: e.reason,
-			message: e.message,
-			file: file
-		});
-	}
+	return matter.read(file, {
+		parser: require('js-yaml').safeLoad
+	});
 };
 
 
@@ -183,7 +174,6 @@ var handleError = function (e) {
 		name: 'Error',
 		reason: '',
 		message: 'An error occurred',
-		file: ''
 	}, e);
 
 	// call onError
@@ -194,7 +184,7 @@ var handleError = function (e) {
 
 	// log errors
 	if (options.logErrors) {
-		console.error(chalk.bold.red('Error (fabricator-assemble): [' + e.file + '] ' + e.message));
+		console.error(chalk.bold.red('Error (fabricator-assemble): ' + e.message));
 		exit = false;
 	}
 
@@ -600,6 +590,8 @@ module.exports = function (options) {
 		// assemble
 		assemble();
 
-	} catch(e) {}
+	} catch(e) {
+		handleError(e);
+	}
 
 };
