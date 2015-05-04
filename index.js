@@ -1,7 +1,6 @@
 // modules
 var _ = require('lodash');
 var beautifyHtml = require('js-beautify').html;
-var changeCase = require('change-case');
 var fs = require('fs');
 var globby = require('globby');
 var Handlebars = require('handlebars');
@@ -148,6 +147,17 @@ var buildContext = function (data) {
 
 
 /**
+ * Convert a file name to title case
+ * @param  {String} str
+ * @return {String}
+ */
+var toTitleCase = function(str) {
+    return str.replace(/(\-|_)/g, ' ').replace(/\w\S*/g, function(word) {
+        return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
+    });
+};
+
+/**
  * Insert the page into a layout
  * @param  {String} page
  * @param  {String} layout
@@ -184,12 +194,12 @@ var parseMaterials = function () {
 
 		if (!isSubCollection) {
 			assembly.materials[collection] = assembly.materials[collection] || {
-				name: changeCase.titleCase(collection),
+				name: toTitleCase(collection),
 				items: {}
 			};
 		} else {
 			assembly.materials[parent].items[collection] = assembly.materials[parent].items[collection] || {
-				name: changeCase.titleCase(collection),
+				name: toTitleCase(collection),
 				items: {}
 			};
 		}
@@ -217,12 +227,12 @@ var parseMaterials = function () {
 		// capture meta data for the material
 		if (!isSubCollection) {
 			assembly.materials[collection].items[id] = {
-				name: changeCase.titleCase(id),
+				name: toTitleCase(id),
 				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
 			};
 		} else {
 			assembly.materials[parent].items[collection].items[id] = {
-				name: changeCase.titleCase(id.split('.')[1]),
+				name: toTitleCase(id.split('.')[1]),
 				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
 			};
 		}
@@ -280,7 +290,7 @@ var parseDocs = function () {
 
 		// save each as unique prop
 		assembly.docs[id] = {
-			name: changeCase.titleCase(id),
+			name: toTitleCase(id),
 			content: md.render(fs.readFileSync(file, 'utf-8'))
 		};
 
@@ -376,13 +386,13 @@ var parseViews = function () {
 
 			// create collection if it doesn't exist
 			assembly.views[collection] = assembly.views[collection] || {
-				name: changeCase.titleCase(collection),
+				name: toTitleCase(collection),
 				items: {}
 			};
 
 			// store view data
 			assembly.views[collection].items[id] = {
-				name: changeCase.titleCase(id),
+				name: toTitleCase(id),
 				data: fileData
 			};
 
