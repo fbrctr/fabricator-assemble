@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var assert = require('assert');
 var assemble = require('../');
 var del = require('del');
@@ -86,6 +87,22 @@ describe('fabricator-assemble', function () {
 
 		var output = minify(fs.readFileSync('./test/output/helpers.html', 'utf-8'), { collapseWhitespace: true });
 		var expected = minify(fs.readFileSync('./test/expected/helpers.html', 'utf-8'), { collapseWhitespace: true });
+
+		assert.equal(output, expected);
+		done();
+
+	});
+
+	it('should use a custom material key', function (done) {
+
+		assemble(_.assign({}, options, {
+			keys: {
+				materials: 'patterns'
+			}
+		}));
+
+		var output = minify(fs.readFileSync('./test/output/material-key.html', 'utf-8'), { collapseWhitespace: true });
+		var expected = minify(fs.readFileSync('./test/expected/material-key.html', 'utf-8'), { collapseWhitespace: true });
 
 		assert.equal(output, expected);
 		done();

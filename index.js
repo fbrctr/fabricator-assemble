@@ -5,6 +5,7 @@ var chalk = require('chalk');
 var fs = require('fs');
 var globby = require('globby');
 var Handlebars = require('handlebars');
+var inflect = require('i')();
 var matter = require('gray-matter');
 var md = require('markdown-it')({ html: true, linkify: true });
 var mkdirp = require('mkdirp');
@@ -61,10 +62,21 @@ var defaults = {
 	docs: 'src/docs/**/*.md',
 
 	/**
+	 * Keywords used to access items in views
+	 * @type {Object}
+	 */
+	keys: {
+		materials: 'materials',
+		views: 'views',
+		docs: 'docs'
+	},
+
+	/**
 	 * Location to write files
 	 * @type {String}
 	 */
 	dest: 'dist',
+
 	/**
 	 * beautifier options
 	 * @type {Object}
@@ -202,7 +214,19 @@ var handleError = function (e) {
  * @return {Object}
  */
 var buildContext = function (data) {
-	return _.assign({}, data, assembly.data, assembly.materialData, { materials: assembly.materials }, { views: assembly.views }, { docs: assembly.docs });
+
+	// set keys to whatever is defined
+	var materials = {};
+	materials[options.keys.materials] = assembly.materials;
+
+	var views = {};
+	views[options.keys.views] = assembly.views;
+
+	var docs = {};
+	docs[options.keys.docs] = assembly.docs;
+
+	return _.assign({}, data, assembly.data, assembly.materialData, materials, views, docs);
+
 };
 
 
@@ -496,11 +520,12 @@ var registerHelpers = function () {
 	/**
 	 * `material`
 	 * @description Like a normal partial include (`{{> partialName }}`),
-	 * but with some additional templating logic to help with nested block iterations
+	 * but with some additional templating logic to help with nested block iterations.
+	 * The name of the helper is the singular form of whatever is defined as the `options.keys.materials`
 	 * @example
 	 * {{material name context}}
 	 */
-	Handlebars.registerHelper('material', function (name, context) {
+	Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context) {
 
 		var template = Handlebars.partials[name],
 			fn;
@@ -526,7 +551,7 @@ var registerHelpers = function () {
 var setup = function (userOptions) {
 
 	// merge user options with defaults
-	options = _.assign({}, defaults, userOptions);
+	options = _.merge({}, defaults, userOptions);
 
 	// set handlebars compile options
 	options.handlebars = (options.logErrors || _.isFunction(options.onError)) ? { strict: true } : {};
