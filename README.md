@@ -141,7 +141,7 @@ Markdown files containing toolkit-wide documentation
 
 ### options.keys
 
-Type: `Objects` 
+Type: `Objects`  
 Default: `materials/views/docs`
 
 Object keywords for accessing "materials", "views", and "docs" in a view templating context. Fabricator uses some specific terms like "materials" to describe what are really "partials" in Handelbars. This option give you the flexibility to define your own terms for `materials`, `views`, and `docs`.
@@ -173,7 +173,7 @@ assemble({
 
 ### options.helpers
 
-Type: `Object`
+Type: `Object`  
 Default: `{}`
 
 User-defined helpers. E.g.:
@@ -189,21 +189,21 @@ helpers: {
 
 ### options.logErrors
 
-Type: `Boolean`
+Type: `Boolean`  
 Default: `false`
 
 Whether or not to log errors to console. If set to false, the app will exit on error.
 
 ### options.onError
 
-Type: `Function`
+Type: `Function`  
 Default: `null`
 
 Error handler function. Receives an `error` object param.
 
 ### options.dest
 
-Type: `String`
+Type: `String`  
 Default: `dist`
 
 Destination of compiled views (where files are saved to)
