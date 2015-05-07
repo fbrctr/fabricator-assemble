@@ -76,9 +76,13 @@ Default options:
 	layoutIncludes: 'src/views/layouts/includes/*',
 	views: ['src/views/**/*', '!src/views/+(layouts)/**'],
 	materials: 'src/materials/**/*',
-	materialKey: 'materials',
 	data: 'src/data/**/*.{json,yml}',
 	docs: 'src/docs/**/*.md',
+	keys: {
+		materials: 'materials',
+		views: 'views',
+		docs: 'docs'
+	}
 	helpers: {},
 	logErrors: false,
 	onError: function(error) {},
@@ -121,15 +125,6 @@ Default: `src/materials/**/*`
 
 Files to use a partials/helpers. These are the materials that make up your toolkit. by default, Fabricator comes with "components" and "structures", but you can define your own taxonomy.
 
-### options.materialKey
-
-Type: `String` 
-Default: `materials`
-
-Object keyword for accessing "materials" in a view templating context. Fabricator uses the term "materials" to describe what are really "partials" in Handelbars' terms. This allows you to use a term other than `materials` when accessing partials. 
-
-Note that this will also change the built-in `{{material <foo>}}` helper to use the singular form of whatever is defined. e.g. `materialKey: 'patterns'` -> `{{pattern <foo>}}`
-
 ### options.data
 
 Type: `String` or `Array`  
@@ -143,6 +138,38 @@ Type: `String` or `Array`
 Default: `src/docs/**/*.md`
 
 Markdown files containing toolkit-wide documentation
+
+### options.keys
+
+Type: `Objects` 
+Default: `materials/views/docs`
+
+Object keywords for accessing "materials", "views", and "docs" in a view templating context. Fabricator uses some specific terms like "materials" to describe what are really "partials" in Handelbars. This option give you the flexibility to define your own terms for `materials`, `views`, and `docs`.
+
+For example:
+
+```
+assemble({
+	keys: {
+		materials: 'patterns'
+	}
+});
+``` 
+
+```
+<!-- formerly `{{#each materials}}` -->
+{{#each patterns}}
+
+	<h1>{{name}}</h1>
+
+	{{#each items}}
+		<h2>{{name}}</h2>
+	{{/each}}
+
+{{/each}}
+```
+
+**Note**: this will also change the built-in `{{material <foo>}}` helper to use the **singular** form of whatever is defined for the `materials` key. e.g. `materialKey: 'patterns'` -> `{{pattern <foo>}}`. If you set a new key for `materials`, you will also need to update the `f-item-content.html` include to use the new helper name.
 
 ### options.helpers
 

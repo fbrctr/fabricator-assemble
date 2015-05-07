@@ -95,7 +95,11 @@ describe('fabricator-assemble', function () {
 
 	it('should use a custom material key', function (done) {
 
-		assemble(_.assign({}, options, { materialKey: 'patterns' }));
+		assemble(_.assign({}, options, {
+			keys: {
+				materials: 'patterns'
+			}
+		}));
 
 		var output = minify(fs.readFileSync('./test/output/material-key.html', 'utf-8'), { collapseWhitespace: true });
 		var expected = minify(fs.readFileSync('./test/expected/material-key.html', 'utf-8'), { collapseWhitespace: true });

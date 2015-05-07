@@ -50,12 +50,6 @@ var defaults = {
 	materials: 'src/materials/**/*',
 
 	/**
-	 * Keyword used to access materials in views
-	 * @type {String}
-	 */
-	materialKey: 'materials',
-
-	/**
 	 * JSON or YAML data models that are piped into views
 	 * @type {(String|Array)}
 	 */
@@ -66,6 +60,16 @@ var defaults = {
 	 * @type {(String|Array)}
 	 */
 	docs: 'src/docs/**/*.md',
+
+	/**
+	 * Keywords used to access items in views
+	 * @type {Object}
+	 */
+	keys: {
+		materials: 'materials',
+		views: 'views',
+		docs: 'docs'
+	},
 
 	/**
 	 * Location to write files
@@ -211,11 +215,17 @@ var handleError = function (e) {
  */
 var buildContext = function (data) {
 
-	// set materialsKey to whatever is defined
-	var materialsObj = {};
-	materialsObj[options.materialKey] = assembly.materials;
+	// set keys to whatever is defined
+	var materials = {};
+	materials[options.keys.materials] = assembly.materials;
 
-	return _.assign({}, data, assembly.data, assembly.materialData, materialsObj, { views: assembly.views }, { docs: assembly.docs });
+	var views = {};
+	views[options.keys.views] = assembly.views;
+
+	var docs = {};
+	docs[options.keys.docs] = assembly.docs;
+
+	return _.assign({}, data, assembly.data, assembly.materialData, materials, views, docs);
 
 };
 
@@ -511,11 +521,11 @@ var registerHelpers = function () {
 	 * `material`
 	 * @description Like a normal partial include (`{{> partialName }}`),
 	 * but with some additional templating logic to help with nested block iterations.
-	 * The name of the helper is the singular form of whatever is defined as the `materialKey`
+	 * The name of the helper is the singular form of whatever is defined as the `options.keys.materials`
 	 * @example
 	 * {{material name context}}
 	 */
-	Handlebars.registerHelper(inflect.singularize(options.materialKey), function (name, context) {
+	Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context) {
 
 		var template = Handlebars.partials[name],
 			fn;
@@ -541,7 +551,7 @@ var registerHelpers = function () {
 var setup = function (userOptions) {
 
 	// merge user options with defaults
-	options = _.assign({}, defaults, userOptions);
+	options = _.merge({}, defaults, userOptions);
 
 	// set handlebars compile options
 	options.handlebars = (options.logErrors || _.isFunction(options.onError)) ? { strict: true } : {};
