@@ -208,7 +208,7 @@ Default: `dist`
 
 Destination of compiled views (where files are saved to)
 
-## API
+## Usage
 
 ### Definitions
 
