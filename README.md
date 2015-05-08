@@ -326,6 +326,14 @@ This defines the order in which materials will appear in the side menu or other 
 {{> qux}}
 ```
 
+The numbers are also ignored in the `.name` property. The materials above would list as:
+
+```
+Foo
+Bar
+Qux
+```
+
 #### Data
 
 Data is defined as JSON or YAML.
