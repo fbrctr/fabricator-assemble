@@ -532,7 +532,7 @@ var registerHelpers = function () {
 
 		// check to see if template is already compiled
 		if (!_.isFunction(template)) {
-			fn = Handlebars.compile(template, options.handlebars);
+			fn = Handlebars.compile(template);
 		} else {
 			fn = template;
 		}
@@ -552,9 +552,6 @@ var setup = function (userOptions) {
 
 	// merge user options with defaults
 	options = _.merge({}, defaults, userOptions);
-
-	// set handlebars compile options
-	options.handlebars = (options.logErrors || _.isFunction(options.onError)) ? { strict: true } : {};
 
 	// setup steps
 	registerHelpers();
@@ -600,7 +597,7 @@ var assemble = function () {
 		// template using Handlebars
 		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
 			context = buildContext(pageMatter.data),
-			template = Handlebars.compile(source, options.handlebars);
+			template = Handlebars.compile(source);
 
 		// write file
 		mkdirp.sync(path.dirname(filePath));
