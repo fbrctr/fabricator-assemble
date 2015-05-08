@@ -86,11 +86,13 @@ var defaults = {
 		indent_char: '	',
 		indent_with_tabs: true
 	},
+
 	/**
 	 * Function to call when an error occurs
 	 * @type {Function}
 	 */
 	onError: null,
+
 	/**
 	 * Whether or not to log errors to console
 	 * @type {Boolean}
@@ -152,10 +154,14 @@ var assembly = {
 /**
  * Get the name of a file (minus extension) from a path
  * @param  {String} filePath
+ * @example
+ * './src/materials/structures/foo.html' -> 'foo'
+ * './src/materials/structures/02-bar.html' -> 'bar'
  * @return {String}
  */
-var getFileName = function (filePath) {
-	return path.basename(filePath).replace(/\.[^\/.]+$/, '');
+var getName = function (filePath, preserveNumbers) {
+	var name = path.basename(filePath, path.extname(filePath));
+	return (preserveNumbers) ? name : name.replace(/^[0-9|\.\-]+/, '');
 };
 
 
@@ -241,6 +247,7 @@ var toTitleCase = function(str) {
     });
 };
 
+
 /**
  * Insert the page into a layout
  * @param  {String} page
@@ -272,8 +279,8 @@ var parseMaterials = function () {
 	// stub out an object for each collection and subCollection
 	files.forEach(function (file) {
 
-		var parent = path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0];
-		var collection = path.normalize(path.dirname(file)).split(path.sep).pop();
+		var parent = getName(path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0]);
+		var collection = getName(path.normalize(path.dirname(file)).split(path.sep).pop());
 		var isSubCollection = (dirs.indexOf(parent) > -1);
 
 		if (!isSubCollection) {
@@ -296,10 +303,11 @@ var parseMaterials = function () {
 
 		// get info
 		var fileMatter = getMatter(file);
-		var collection = path.normalize(path.dirname(file)).split(path.sep).pop();
+		var collection = getName(path.normalize(path.dirname(file)).split(path.sep).pop());
 		var parent = path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0];
 		var isSubCollection = (dirs.indexOf(parent) > -1);
-		var id = (isSubCollection) ? collection + '.' + getFileName(file) : getFileName(file);
+		var id = (isSubCollection) ? collection + '.' + getName(file) : getName(file);
+		var key = (isSubCollection) ? collection + '.' + getName(file, true) : getName(file, true);
 
 		// get material front-matter, omit `notes`
 		var localData = _.omit(fileMatter.data, 'notes');
@@ -310,12 +318,12 @@ var parseMaterials = function () {
 
 		// capture meta data for the material
 		if (!isSubCollection) {
-			assembly.materials[collection].items[id] = {
+			assembly.materials[collection].items[key] = {
 				name: toTitleCase(id),
 				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
 			};
 		} else {
-			assembly.materials[parent].items[collection].items[id] = {
+			assembly.materials[parent].items[collection].items[key] = {
 				name: toTitleCase(id.split('.')[1]),
 				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
 			};
@@ -339,7 +347,6 @@ var parseMaterials = function () {
 			});
 		}
 
-
 		// register the partial
 		Handlebars.registerPartial(id, content);
 
@@ -347,10 +354,10 @@ var parseMaterials = function () {
 
 
 	// sort materials object alphabetically
-	assembly.materials = sortObj(assembly.materials);
+	assembly.materials = sortObj(assembly.materials, 'order');
 
 	for (var collection in assembly.materials) {
-		assembly.materials[collection].items = sortObj(assembly.materials[collection].items);
+		assembly.materials[collection].items = sortObj(assembly.materials[collection].items, 'order');
 	}
 
 };
@@ -370,7 +377,7 @@ var parseDocs = function () {
 	// iterate over each file (material)
 	files.forEach(function (file) {
 
-		var id = getFileName(file);
+		var id = getName(file);
 
 		// save each as unique prop
 		assembly.docs[id] = {
@@ -396,7 +403,7 @@ var parseLayouts = function () {
 
 	// save content of each file
 	files.forEach(function (file) {
-		var id = getFileName(file);
+		var id = getName(file);
 		var content = fs.readFileSync(file, 'utf-8');
 		assembly.layouts[id] = content;
 	});
@@ -414,7 +421,7 @@ var parseLayoutIncludes = function () {
 
 	// save content of each file
 	files.forEach(function (file) {
-		var id = getFileName(file);
+		var id = getName(file);
 		var content = fs.readFileSync(file, 'utf-8');
 		Handlebars.registerPartial(id, content);
 	});
@@ -435,7 +442,7 @@ var parseData = function () {
 
 	// save content of each file
 	files.forEach(function (file) {
-		var id = getFileName(file);
+		var id = getName(file);
 		var content = yaml.safeLoad(fs.readFileSync(file, 'utf-8'));
 		assembly.data[id] = content;
 	});
@@ -456,7 +463,7 @@ var parseViews = function () {
 
 	files.forEach(function (file) {
 
-		var id = getFileName(file);
+		var id = getName(file);
 
 		// determine if view is part of a collection (subdir)
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
@@ -527,16 +534,22 @@ var registerHelpers = function () {
 	 */
 	Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context) {
 
-		var template = Handlebars.partials[name],
+		// remove leading numbers from name keyword
+		// partials are always registered with the leading numbers removed
+		var key = name.replace(/^([a-z][a-z0-9]*\.)?([0-9\.-]+)(.*)$/i, '$1$3');
+
+		// attempt to find pre-compiled partial
+		var template = Handlebars.partials[key],
 			fn;
 
-		// check to see if template is already compiled
+		// compile partial if not already compiled
 		if (!_.isFunction(template)) {
 			fn = Handlebars.compile(template, options.handlebars);
 		} else {
 			fn = template;
 		}
 
+		// return beautified html with trailing whitespace removed
 		return beautifyHtml(fn(buildContext(context)).replace(/^\s+/, ''), options.beautifier);
 
 	});
@@ -582,7 +595,7 @@ var assemble = function () {
 	// iterate over each view
 	files.forEach(function (file) {
 
-		var id = getFileName(file);
+		var id = getName(file);
 
 		// build filePath
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
