@@ -320,12 +320,14 @@ var parseMaterials = function () {
 		if (!isSubCollection) {
 			assembly.materials[collection].items[key] = {
 				name: toTitleCase(id),
-				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
+				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : '',
+				data: localData
 			};
 		} else {
 			assembly.materials[parent].items[collection].items[key] = {
 				name: toTitleCase(id.split('.')[1]),
-				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : ''
+				notes: (fileMatter.data.notes) ? md.render(fileMatter.data.notes) : '',
+				data: localData
 			};
 		}
 
