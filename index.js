@@ -463,7 +463,7 @@ var parseViews = function () {
 
 	files.forEach(function (file) {
 
-		var id = getName(file);
+		var id = getName(file, true);
 
 		// determine if view is part of a collection (subdir)
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
