@@ -306,6 +306,34 @@ The content within these files can be accessed as such:
 {{> form-toggle}}
 ```
 
+#### Ordering
+
+You can manually order materials by prefixing the file name with numbers:
+
+```
+01-foo.html
+01.01-bar.html
+02-qux.html
+```
+
+This defines the order in which materials will appear in the side menu or other places the `materials.items` context is used.
+
+**Note**: The number prefixes are ignored when registering partials, so you'll still be able to access them using the material name per usual. e.g.:
+
+```
+{{> foo}}
+{{> bar}}
+{{> qux}}
+```
+
+The numbers are also ignored in the `.name` property. The materials above would list as:
+
+```
+Foo
+Bar
+Qux
+```
+
 #### Data
 
 Data is defined as JSON or YAML.
