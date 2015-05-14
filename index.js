@@ -469,7 +469,7 @@ var parseViews = function () {
 
 		// determine if view is part of a collection (subdir)
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
-			collection = (dirname !== 'views') ? dirname : '';
+			collection = (dirname !== options.keys.views) ? dirname : '';
 
 		var fileMatter = getMatter(file),
 			fileData = _.omit(fileMatter.data, 'notes');
@@ -598,7 +598,7 @@ var assemble = function () {
 
 		// build filePath
 		var dirname = path.normalize(path.dirname(file)).split(path.sep).pop(),
-			collection = (dirname !== 'views') ? dirname : '',
+			collection = (dirname !== options.keys.views) ? dirname : '',
 			filePath = path.normalize(path.join(options.dest, collection, path.basename(file)));
 
 		// get page gray matter and content
