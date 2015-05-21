@@ -538,7 +538,7 @@ var registerHelpers = function () {
 
 		// remove leading numbers from name keyword
 		// partials are always registered with the leading numbers removed
-		var key = name.replace(/^([a-z][a-z0-9]*\.)?([0-9\.-]+)(.*)$/i, '$1$3');
+		var key = name.replace(/^([a-z][a-z0-9\-]*\.)?([0-9\.-]+)(.*)$/i, '$1$3');
 
 		// attempt to find pre-compiled partial
 		var template = Handlebars.partials[key],
