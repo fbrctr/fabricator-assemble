@@ -618,6 +618,11 @@ var assemble = function () {
 		mkdirp.sync(path.dirname(filePath));
 		fs.writeFileSync(filePath, template(context));
 
+		// write file if custom dest front-matter variable is defined
+		if (pageMatter.data.dest) {
+			fs.writeFileSync(pageMatter.data.dest, template(context));
+		}
+
 	});
 
 };
