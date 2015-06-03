@@ -616,7 +616,7 @@ var assemble = function () {
 
 		// redefine file path if dest front-matter variable is defined
 		if (pageMatter.data.dest) {
-			var filePath = path.normalize(pageMatter.data.dest);
+			filePath = path.normalize(pageMatter.data.dest);
 		}
 
 		// write file
