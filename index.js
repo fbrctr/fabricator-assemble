@@ -242,9 +242,9 @@ var buildContext = function (data) {
  * @return {String}
  */
 var toTitleCase = function(str) {
-    return str.replace(/(\-|_)/g, ' ').replace(/\w\S*/g, function(word) {
-        return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
-    });
+		return str.replace(/(\-|_)/g, ' ').replace(/\w\S*/g, function(word) {
+				return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
+		});
 };
 
 
@@ -614,15 +614,20 @@ var assemble = function () {
 			context = buildContext(pageMatter.data),
 			template = Handlebars.compile(source);
 
+		// redefine file path if dest front-matter variable is defined
+		if (pageMatter.data.dest) {
+			var filePath = path.normalize(pageMatter.data.dest);
+		}
+
 		// write file
 		mkdirp.sync(path.dirname(filePath));
 		fs.writeFileSync(filePath, template(context));
 
-		// write file if custom dest front-matter variable is defined
-		if (pageMatter.data.dest) {
-			var customPath = path.normalize(pageMatter.data.dest);
-			mkdirp.sync(path.dirname(customPath));
-			fs.writeFileSync(customPath, template(context));
+		// write a copy file if custom dest-copy front-matter variable is defined
+		if (pageMatter.data.dest-copy) {
+			var copyPath = path.normalize(pageMatter.data.dest-copy);
+			mkdirp.sync(path.dirname(copyPath));
+			fs.writeFileSync(copyPath, template(context));
 		}
 	});
 
