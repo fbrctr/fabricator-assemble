@@ -624,8 +624,8 @@ var assemble = function () {
 		fs.writeFileSync(filePath, template(context));
 
 		// write a copy file if custom dest-copy front-matter variable is defined
-		if (pageMatter.data.dest-copy) {
-			var copyPath = path.normalize(pageMatter.data.dest-copy);
+		if (pageMatter.data['dest-copy']) {
+			var copyPath = path.normalize(pageMatter.data['dest-copy']);
 			mkdirp.sync(path.dirname(copyPath));
 			fs.writeFileSync(copyPath, template(context));
 		}
