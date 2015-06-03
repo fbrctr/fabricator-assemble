@@ -620,7 +620,9 @@ var assemble = function () {
 
 		// write file if custom dest front-matter variable is defined
 		if (pageMatter.data.dest) {
-			fs.writeFileSync(pageMatter.data.dest, template(context));
+				var customPath = path.normalize(pageMatter.data.dest);
+				mkdirp.sync(path.dirname(customPath));
+				fs.writeFileSync(customPath, template(context));
 		}
 
 	});
