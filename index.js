@@ -219,7 +219,7 @@ var handleError = function (e) {
  * @param  {Object} data
  * @return {Object}
  */
-var buildContext = function (data) {
+var buildContext = function (data, hash) {
 
 	// set keys to whatever is defined
 	var materials = {};
@@ -231,7 +231,7 @@ var buildContext = function (data) {
 	var docs = {};
 	docs[options.keys.docs] = assembly.docs;
 
-	return _.assign({}, data, assembly.data, assembly.materialData, materials, views, docs);
+	return _.assign({}, data, assembly.data, assembly.materialData, materials, views, docs, hash);
 
 };
 
@@ -534,7 +534,7 @@ var registerHelpers = function () {
 	 * @example
 	 * {{material name context}}
 	 */
-	Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context) {
+	Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context, options) {
 
 		// remove leading numbers from name keyword
 		// partials are always registered with the leading numbers removed
@@ -552,7 +552,7 @@ var registerHelpers = function () {
 		}
 
 		// return beautified html with trailing whitespace removed
-		return beautifyHtml(fn(buildContext(context)).replace(/^\s+/, ''), options.beautifier);
+		return beautifyHtml(fn(buildContext(context, options.hash)).replace(/^\s+/, ''), options.beautifier);
 
 	});
 
