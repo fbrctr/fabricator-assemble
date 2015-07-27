@@ -534,7 +534,7 @@ var registerHelpers = function () {
 	 * @example
 	 * {{material name context}}
 	 */
-	Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context, options) {
+	Handlebars.registerHelper(inflect.singularize(options.keys.materials), function (name, context, opts) {
 
 		// remove leading numbers from name keyword
 		// partials are always registered with the leading numbers removed
@@ -552,7 +552,7 @@ var registerHelpers = function () {
 		}
 
 		// return beautified html with trailing whitespace removed
-		return beautifyHtml(fn(buildContext(context, options.hash)).replace(/^\s+/, ''), options.beautifier);
+		return beautifyHtml(fn(buildContext(context, opts.hash)).replace(/^\s+/, ''), options.beautifier);
 
 	});
 
