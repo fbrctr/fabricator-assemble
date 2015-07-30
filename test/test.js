@@ -14,7 +14,7 @@ describe('fabricator-assemble', function () {
 		layoutIncludes: './test/fixtures/views/layouts/includes/*',
 		materials: './test/fixtures/materials/**/*',
 		views: ['./test/fixtures/views/**/*', '!./test/fixtures/views/+(layouts)/**'],
-		data: './test/fixtures/data/**/*.{yml,json}',
+		data: ['./test/fixtures/data/**/*.{yml,json}'],
 		docs: './test/fixtures/docs/**/*',
 		dest: './test/output',
 		helpers: {
