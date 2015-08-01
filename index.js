@@ -619,6 +619,9 @@ var assemble = function () {
 			filePath = path.normalize(pageMatter.data.dest);
 		}
 
+		// change extension to .html
+		filePath = filePath.replace(/\.[0-9a-z]+$/, '.html');
+
 		// write file
 		mkdirp.sync(path.dirname(filePath));
 		fs.writeFileSync(filePath, template(context));
