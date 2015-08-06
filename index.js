@@ -201,13 +201,13 @@ var handleError = function (e) {
 
 	// log errors
 	if (options.logErrors) {
-		console.error(chalk.bold.red('Error (fabricator-assemble): ' + e.message));
+		console.error(chalk.bold.red('Error (fabricator-assemble): ' + e.message + '\n'), e.stack);
 		exit = false;
 	}
 
 	// break the build if desired
 	if (exit) {
-		console.error(chalk.bold.red('Error (fabricator-assemble): ' + e.message));
+		console.error(chalk.bold.red('Error (fabricator-assemble): ' + e.message + '\n'), e.stack);
 		process.exit(1);
 	}
 
