@@ -271,8 +271,9 @@ var parseMaterials = function () {
 	var files = globby.sync(options.materials, { nodir: true, nosort: true });
 
 	// get all directories
-	var dirs = files.map(function (file) {
-		return path.normalize(path.dirname(file)).split(path.sep).pop();
+	// do a new glob; trailing slash matches only dirs
+	var dirs = globby.sync(options.materials + '/').map(function (dir) {
+		return path.normalize(dir).split(path.sep).slice(-2, -1)[0];
 	});
 
 
@@ -283,12 +284,16 @@ var parseMaterials = function () {
 		var collection = getName(path.normalize(path.dirname(file)).split(path.sep).pop(), true);
 		var isSubCollection = (dirs.indexOf(parent) > -1);
 
-		if (!isSubCollection) {
-			assembly.materials[collection] = assembly.materials[collection] || {
-				name: toTitleCase(getName(collection)),
-				items: {}
-			};
-		} else {
+		// get the material base dir for stubbing out the base object for each category (e.g. component, structure)
+		var materialBase = (isSubCollection) ? parent : collection;
+
+		// stub the base object
+		assembly.materials[materialBase] = assembly.materials[materialBase] || {
+			name: toTitleCase(getName(collection)),
+			items: {}
+		};
+
+		if (isSubCollection) {
 			assembly.materials[parent].items[collection] = assembly.materials[parent].items[collection] || {
 				name: toTitleCase(getName(collection)),
 				items: {}
