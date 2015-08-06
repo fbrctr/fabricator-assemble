@@ -279,18 +279,18 @@ var parseMaterials = function () {
 	// stub out an object for each collection and subCollection
 	files.forEach(function (file) {
 
-		var parent = getName(path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0]);
-		var collection = getName(path.normalize(path.dirname(file)).split(path.sep).pop());
+		var parent = getName(path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0], true);
+		var collection = getName(path.normalize(path.dirname(file)).split(path.sep).pop(), true);
 		var isSubCollection = (dirs.indexOf(parent) > -1);
 
 		if (!isSubCollection) {
 			assembly.materials[collection] = assembly.materials[collection] || {
-				name: toTitleCase(collection),
+				name: toTitleCase(getName(collection)),
 				items: {}
 			};
 		} else {
 			assembly.materials[parent].items[collection] = assembly.materials[parent].items[collection] || {
-				name: toTitleCase(collection),
+				name: toTitleCase(getName(collection)),
 				items: {}
 			};
 		}
@@ -303,10 +303,10 @@ var parseMaterials = function () {
 
 		// get info
 		var fileMatter = getMatter(file);
-		var collection = getName(path.normalize(path.dirname(file)).split(path.sep).pop());
+		var collection = getName(path.normalize(path.dirname(file)).split(path.sep).pop(), true);
 		var parent = path.normalize(path.dirname(file)).split(path.sep).slice(-2, -1)[0];
 		var isSubCollection = (dirs.indexOf(parent) > -1);
-		var id = (isSubCollection) ? collection + '.' + getName(file) : getName(file);
+		var id = (isSubCollection) ? getName(collection) + '.' + getName(file) : getName(file);
 		var key = (isSubCollection) ? collection + '.' + getName(file, true) : getName(file, true);
 
 		// get material front-matter, omit `notes`
