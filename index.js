@@ -29,13 +29,13 @@ var defaults = {
 	 * Layout templates
 	 * @type {(String|Array)}
 	 */
-	layouts: 'src/views/layouts/*',
+	layouts: ['src/views/layouts/*'],
 
 	/**
 	 * Layout includes (partials)
 	 * @type {String}
 	 */
-	layoutIncludes: 'src/views/layouts/includes/*',
+	layoutIncludes: ['src/views/layouts/includes/*'],
 
 	/**
 	 * Pages to be inserted into a layout
@@ -47,19 +47,19 @@ var defaults = {
 	 * Materials - snippets turned into partials
 	 * @type {(String|Array)}
 	 */
-	materials: 'src/materials/**/*',
+	materials: ['src/materials/**/*'],
 
 	/**
 	 * JSON or YAML data models that are piped into views
 	 * @type {(String|Array)}
 	 */
-	data: 'src/data/**/*.{json,yml}',
+	data: ['src/data/**/*.{json,yml}'],
 
 	/**
 	 * Markdown files containing toolkit-wide documentation
 	 * @type {(String|Array)}
 	 */
-	docs: 'src/docs/**/*.md',
+	docs: ['src/docs/**/*.md'],
 
 	/**
 	 * Keywords used to access items in views
