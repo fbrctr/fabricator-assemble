@@ -289,7 +289,7 @@ var parseMaterials = function () {
 
 		// stub the base object
 		assembly.materials[materialBase] = assembly.materials[materialBase] || {
-			name: toTitleCase(getName(collection)),
+			name: toTitleCase(getName(materialBase)),
 			items: {}
 		};
 
