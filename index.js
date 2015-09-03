@@ -271,7 +271,10 @@ var parseMaterials = function () {
 	var files = globby.sync(options.materials, { nodir: true, nosort: true });
 
 	// build a glob for identifying directories
-	var dirsGlob = path.dirname(options.materials) + '/*/';
+	options.materials = (typeof options.materials === 'string') ? [options.materials] : options.materials;
+	var dirsGlob = options.materials.map(function (pattern) {
+		return path.dirname(pattern) + '/*/';
+	});
 
 	// get all directories
 	// do a new glob; trailing slash matches only dirs
