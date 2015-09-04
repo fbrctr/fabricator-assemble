@@ -18,19 +18,19 @@
   "repository": "fbrctr/fabricator-assemble",
   "dependencies": {
     "chalk": "^1.0.0",
-    "globby": "^2.0.0",
-    "gray-matter": "^2.0.0",
+    "globby": "^2.1.0",
+    "gray-matter": "^2.0.1",
     "handlebars": "^3.0.3",
     "i": "^0.3.3",
-    "js-beautify": "^1.5.5",
-    "js-yaml": "^3.2.7",
-    "lodash": "^3.8.0",
-    "markdown-it": "^4.2.1",
+    "js-beautify": "^1.5.10",
+    "js-yaml": "^3.4.0",
+    "lodash": "^3.10.1",
+    "markdown-it": "^4.4.0",
     "mkdirp": "^0.5.0",
     "sort-object": "^1.0.0"
   },
   "devDependencies": {
-    "del": "^1.1.1",
+    "del": "^2.0.1",
     "helper-markdown": "^0.1.1",
     "html-minifier": "^0.7.2",
     "mocha": "^2.1.0"
