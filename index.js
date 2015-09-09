@@ -160,8 +160,10 @@ var assembly = {
  * @return {String}
  */
 var getName = function (filePath, preserveNumbers) {
-	var name = path.basename(filePath, path.extname(filePath));
+	// get name; replace spaces with dashes
+	var name = path.basename(filePath, path.extname(filePath)).replace(/\s/g, '-');
 	return (preserveNumbers) ? name : name.replace(/^[0-9|\.\-]+/, '');
+
 };
 
 
