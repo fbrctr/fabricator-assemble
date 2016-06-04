@@ -552,7 +552,7 @@ var registerHelpers = function () {
 		// remove leading numbers from name keyword
 		// partials are always registered with the leading numbers removed
 		// This is for both the subCollection as the file(name) itself!
-		var key = name.replace(/(\d+[\-\.])+/, '').replace(/[\.](\d+[\-\.])+/, '.');
+		var key = name.replace(/(\d+[\-\.])+/, '').replace(/(\d+[\-\.])+/, '');
 
 		// attempt to find pre-compiled partial
 		var template = Handlebars.partials[key],
