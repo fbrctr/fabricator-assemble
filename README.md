@@ -82,7 +82,7 @@ Default options:
 		materials: 'materials',
 		views: 'views',
 		docs: 'docs'
-	}
+	},
 	helpers: {},
 	logErrors: false,
 	onError: function(error) {},
