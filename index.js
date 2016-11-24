@@ -638,7 +638,14 @@ var assemble = function () {
 
 		// write file
 		mkdirp.sync(path.dirname(filePath));
-		fs.writeFileSync(filePath, template(context));
+		try {
+			fs.writeFileSync(filePath, template(context));
+		} catch(e) {
+			const filePath = path.dirname(file) + '/' + path.basename(file);
+
+			console.error('\x1b[31m \x1b[1mBold', 'Error while comiling template', filePath, '\x1b[0m \n')
+			throw e;
+		}
 
 		// write a copy file if custom dest-copy front-matter variable is defined
 		if (pageMatter.data['dest-copy']) {
