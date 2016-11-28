@@ -641,9 +641,9 @@ var assemble = function () {
 		try {
 			fs.writeFileSync(filePath, template(context));
 		} catch(e) {
-			const filePath = path.dirname(file) + '/' + path.basename(file);
+			const originFilePath = path.dirname(file) + '/' + path.basename(file);
 
-			console.error('\x1b[31m \x1b[1mBold', 'Error while comiling template', filePath, '\x1b[0m \n')
+			console.error('\x1b[31m \x1b[1mBold', 'Error while comiling template', originFilePath, '\x1b[0m \n')
 			throw e;
 		}
 
