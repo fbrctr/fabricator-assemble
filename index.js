@@ -83,6 +83,12 @@ var defaults = {
 	 */
   extension: '.html',
 
+  /**
+	 * Output pages to partials
+	 * @type {Boolean}
+	 */
+   partials: false,
+
 	/**
 	 * beautifier options
 	 * @type {Object}
@@ -630,7 +636,7 @@ var assemble = function () {
 		}
 
 		// template using Handlebars
-		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
+		var source = (options.partials) ? pageContent : wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
 			context = buildContext(pageMatter.data),
 			template = Handlebars.compile(source);
 
