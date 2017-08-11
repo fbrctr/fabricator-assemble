@@ -78,6 +78,12 @@ var defaults = {
 	dest: 'dist',
 
 	/**
+	 * Extension to output files as
+	 * @type {String}
+	 */
+  extension: '.html',
+
+	/**
 	 * beautifier options
 	 * @type {Object}
 	 */
@@ -634,7 +640,7 @@ var assemble = function () {
 		}
 
 		// change extension to .html
-		filePath = filePath.replace(/\.[0-9a-z]+$/, '.html');
+		filePath = filePath.replace(/\.[0-9a-z]+$/, options.extension);
 
 		// write file
 		mkdirp.sync(path.dirname(filePath));
