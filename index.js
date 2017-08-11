@@ -84,6 +84,12 @@ var defaults = {
   extension: '.html',
 
 	/**
+	 * Custom dest map
+	 * @type {Object}
+	 */
+  destMap: {},
+
+	/**
 	 * beautifier options
 	 * @type {Object}
 	 */
@@ -638,6 +644,10 @@ var assemble = function () {
 		if (pageMatter.data.dest) {
 			filePath = path.normalize(pageMatter.data.dest);
 		}
+
+    if (options.destMap[collection]) {
+			filePath = path.normalize(path.join(options.destMap[collection], path.basename(file)));
+    }
 
 		// change extension to .html
 		filePath = filePath.replace(/\.[0-9a-z]+$/, options.extension);
