@@ -56,6 +56,12 @@ var defaults = {
 	data: ['src/data/**/*.{json,yml}'],
 
 	/**
+	 * Data to be merged into context
+	 * @type {(Object)}
+	 */
+	buildData: {},
+
+	/**
 	 * Markdown files containing toolkit-wide documentation
 	 * @type {(String|Array)}
 	 */
@@ -76,6 +82,18 @@ var defaults = {
 	 * @type {String}
 	 */
 	dest: 'dist',
+
+	/**
+	 * Extension to output files as
+	 * @type {String}
+	 */
+  extension: '.html',
+
+	/**
+	 * Custom dest map
+	 * @type {Object}
+	 */
+  destMap: {},
 
 	/**
 	 * beautifier options
@@ -233,7 +251,7 @@ var buildContext = function (data, hash) {
 	var docs = {};
 	docs[options.keys.docs] = assembly.docs;
 
-	return _.assign({}, data, assembly.data, assembly.materialData, materials, views, docs, hash);
+	return _.assign({}, data, assembly.data, assembly.materialData, options.buildData, materials, views, docs, hash);
 
 };
 
@@ -633,8 +651,12 @@ var assemble = function () {
 			filePath = path.normalize(pageMatter.data.dest);
 		}
 
+    if (options.destMap[collection]) {
+			filePath = path.normalize(path.join(options.destMap[collection], path.basename(file)));
+    }
+
 		// change extension to .html
-		filePath = filePath.replace(/\.[0-9a-z]+$/, '.html');
+		filePath = filePath.replace(/\.[0-9a-z]+$/, options.extension);
 
 		// write file
 		mkdirp.sync(path.dirname(filePath));
