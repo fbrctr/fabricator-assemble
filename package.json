@@ -4,8 +4,8 @@
   "description": "The assembly engine behind Fabricator",
   "main": "index.js",
   "engines": {
-    "node": ">=0.10.0",
-    "npm": "^2.0.0"
+    "node": ">=4.0",
+    "npm": ">=2.0.0"
   },
   "scripts": {
     "test": "mocha"
