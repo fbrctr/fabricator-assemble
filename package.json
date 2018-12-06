@@ -21,7 +21,6 @@
     "globby": "^5.0.0",
     "gray-matter": "^2.0.2",
     "handlebars": "^4.0.5",
-    "html-minifier": "^2.1.7",
     "i": "^0.3.5",
     "js-beautify": "^1.6.3",
     "js-yaml": "^3.6.1",
@@ -34,6 +33,6 @@
     "del": "^2.2.1",
     "helper-markdown": "^0.1.2",
     "html-minifier": "^2.1.7",
-    "mocha": "^2.5.3"
+    "mocha": "^5.2.0"
   }
 }
