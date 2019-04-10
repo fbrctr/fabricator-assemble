@@ -86,7 +86,8 @@ Default options:
 	helpers: {},
 	logErrors: false,
 	onError: function(error) {},
-	dest: 'dist'
+	dest: 'dist',
+	baseUrl: '',
 }
 ```
 
@@ -207,6 +208,13 @@ Type: `String`
 Default: `dist`
 
 Destination of compiled views (where files are saved to)
+
+### options.baseUrl
+
+Type: `String`  
+Default: `''`
+
+Changes the baseurl path. Useful in build that require better path definitions for assets (ie: production builds).
 
 ## Usage
 
