@@ -115,7 +115,13 @@ var defaults = {
 	 * Whether or not to log errors to console
 	 * @type {Boolean}
 	 */
-	logErrors: false
+	logErrors: false,
+
+	/**
+	 * Overrides default when a value is given
+	 * @type {String}
+	 */
+	baseUrl: '',
 };
 
 
@@ -639,6 +645,10 @@ var assemble = function () {
 
 		if (collection) {
 			pageMatter.data.baseurl = '..';
+		}
+
+		if(options.baseUrl && options.baseUrl.length > 0) {
+			pageMatter.data.baseurl = options.baseUrl;
 		}
 
 		// template using Handlebars
