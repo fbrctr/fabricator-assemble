@@ -216,6 +216,19 @@ Default: `''`
 
 Changes the baseurl path. Useful in build that require better path definitions for assets (ie: production builds).
 
+### options.GLOBAL
+
+Type: `Object`
+Default: `{}`
+
+Sets up global values across your fabircator instance. Global values can be accessed by their keys.
+
+For example:
+
+`{{ GLOBAL.SIGN_IN_LINK }}`
+
+Globals in fabricator work in a similar manner to Webpacks DefinePlugin.
+
 ## Usage
 
 ### Definitions
