@@ -122,6 +122,19 @@ var defaults = {
 	 * @type {String}
 	 */
 	baseUrl: '',
+
+	/**
+	 * Sets up global values across your fabircator instance.
+	 * Global values can be accessed by their keys.
+	 * 
+	 * For example:
+	 * 
+	 * {{ GLOBAL.SIGN_IN_LINK }}
+	 * 
+	 * Globals in fabricator work in a similar manner to
+	 * webpacks DefinePlugin.
+	 */
+	GLOBAL: {},
 };
 
 
@@ -650,6 +663,8 @@ var assemble = function () {
 		if(options.baseUrl && options.baseUrl.length > 0) {
 			pageMatter.data.baseurl = options.baseUrl;
 		}
+
+		pageMatter.data.GLOBAL = options.GLOBAL;
 
 		// template using Handlebars
 		var source = wrapPage(pageContent, assembly.layouts[pageMatter.data.layout || options.layout]),
